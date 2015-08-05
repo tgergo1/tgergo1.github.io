@@ -277,6 +277,7 @@ header {
 header .intro-text {
     padding-top: 100px;
     padding-bottom: 50px;
+
 }
 
 header .intro-text .intro-lead-in {
@@ -285,6 +286,7 @@ header .intro-text .intro-lead-in {
     font-size: 22px;
     font-style: italic;
     line-height: 22px;
+    text-shadow:1px 1px 3px black;
 }
 
 header .intro-text .intro-heading {
@@ -294,6 +296,7 @@ header .intro-text .intro-heading {
     font-size: 50px;
     font-weight: 700;
     line-height: 50px;
+    text-shadow:1px 1px 3px black;
 }
 
 @media(min-width:768px) {
