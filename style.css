@@ -66,14 +66,17 @@ main, footer
 
 header
 {
-  padding: 2em;
+  padding: 1em; /* Reduced padding */
   text-align: center;
   background-image: url('./img/bg.jpg');
   background-size: cover;
   background-position: center;
   color: white;
-  background-attachment: fixed;
-	height: 100vh;
+  background-attachment: scroll;
+  height: auto; /* Change from 100vh to auto */
+  min-height: 100vh; /* Ensure it at least covers the viewport height */
+  z-index: 2; /* Ensure it's above the main content but below the nav */
+  position: relative; /* Adjust if it's currently causing layout issues */
 }
 
 header section
@@ -243,14 +246,16 @@ footer
   }
 }
 
-.topnav
-{
+.topnav {
   background-color: #333;
   overflow: hidden;
   position: fixed;
   top: 0;
   width: 100%;
-  padding: 0px 26px;
+  padding: 0 10px; /* Reduced padding */
+  display: flex; /* Ensures flexbox layout */
+  justify-content: start; /* Aligns items to the start of the navigation bar */
+  align-items: center; /* Centers items vertically */
   z-index: 1000;
 }
 
@@ -263,6 +268,13 @@ footer
   padding: 14px 16px;
   text-decoration: none;
   font-size: 17px;
+}
+
+@media only screen and (max-width: 600px) {
+  .topnav a {
+    font-size: 12px; /* Smaller font size on smaller screens */
+    padding: 10px 6px; /* Even smaller padding */
+  }
 }
 
 .topnav a:hover
