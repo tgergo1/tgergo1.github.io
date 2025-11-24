@@ -129,9 +129,6 @@ To use a custom domain:
 
 ## Adding Content
 
-
-### Adding Content
-
 #### Blog Posts
 Create a file in `_posts/` named `YYYY-MM-DD-title.md`:
 
@@ -228,7 +225,6 @@ bundle exec jekyll serve --drafts
 
 ## Customization
 
-
 ### Colors
 Edit CSS variables in `style.css`:
 
@@ -249,21 +245,6 @@ Update these files with your information:
 - `now/index.html` - Current activities and goals
 - `tools/index.html` - Tech stack
 - `resume/index.html` - Professional experience
-
-## Local Development
-
-```bash
-# Install dependencies
-bundle install --path vendor/bundle
-
-# Build the site
-bundle exec jekyll build
-
-# Serve locally with live reload
-bundle exec jekyll serve --livereload
-
-# Visit http://localhost:4000
-```
 
 ## Dark Mode
 
