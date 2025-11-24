@@ -11,29 +11,59 @@
   <link rel="stylesheet" href="{{ '/style.css' | relative_url }}">
 </head>
 <body>
-  <nav>
-    <div class="nav-container">
-      <a href="{{ '/' | relative_url }}" style="font-weight: 600;">Gergely Várhelyi-Tóth</a>
-      <div class="nav-links">
-        <a href="{{ '/blog/' | relative_url }}">Blog</a>
-        <a href="{{ '/projects/' | relative_url }}">Projects</a>
-        <a href="{{ '/microblog/' | relative_url }}">Microblog</a>
-        <a href="{{ '/now/' | relative_url }}">Now</a>
-        <a href="{{ '/resume/' | relative_url }}">Resume</a>
-        <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
-          <i class="fas fa-moon"></i>
-        </button>
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-content">
+      <div class="profile">
+        <img src="{{ '/img/profile.jpg' | relative_url }}" alt="Gergely Várhelyi-Tóth" class="profile-image" onerror="this.style.display='none'">
+        <h1 class="profile-name">Gergely Várhelyi-Tóth</h1>
+        <p class="profile-title">ML Engineer & CEO @ roboGaze</p>
       </div>
+      
+      <div class="profile-bio">
+        <p>I work on formal verification of neural networks for safety-critical automotive applications. My research focuses on ensuring ML models meet ASPICE and ASIL standards through mathematical rigor.</p>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="{{ '/' | relative_url }}" class="nav-item">Home</a>
+        <a href="{{ '/blog/' | relative_url }}" class="nav-item">Blog</a>
+        <a href="{{ '/microblog/' | relative_url }}" class="nav-item">Microblog</a>
+        <a href="{{ '/projects/' | relative_url }}" class="nav-item">Projects</a>
+        <a href="{{ '/now/' | relative_url }}" class="nav-item">Now</a>
+        <a href="{{ '/reading/' | relative_url }}" class="nav-item">Reading</a>
+        <a href="{{ '/tools/' | relative_url }}" class="nav-item">Tools</a>
+        <a href="{{ '/resume/' | relative_url }}" class="nav-item">Resume</a>
+      </nav>
+      
+      <div class="social-links-sidebar">
+        <a href="https://github.com/tgergo1" target="_blank" aria-label="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/tgergo1" target="_blank" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://twitter.com/darwinous" target="_blank" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="mailto:contact@tgergo1.com" aria-label="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </div>
+      
+      <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+      </button>
     </div>
-  </nav>
+  </aside>
 
-  {{ content }}
-
-  <footer>
-    <div class="main-container">
+  <!-- Main Content -->
+  <main class="main-content">
+    {{ content }}
+    
+    <footer>
       <p>© {{ site.time | date: "%Y" }} Gergely Várhelyi-Tóth. Built with Jekyll.</p>
-    </div>
-  </footer>
+    </footer>
+  </main>
 
   <script>
     // Dark mode toggle

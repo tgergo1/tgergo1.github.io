@@ -2,107 +2,80 @@
 layout: default
 ---
 
-<div class="main-container">
-  <div class="hero">
-    <h1 class="hero-title">Gergely Várhelyi-Tóth</h1>
-    <p class="hero-subtitle">Machine Learning Engineer & CEO @ roboGaze</p>
-    <p class="hero-bio">
-      I work on formal verification of neural networks for safety-critical automotive applications. 
-      My research focuses on ensuring ML models meet ASPICE and ASIL standards through mathematical rigor 
-      and advanced verification techniques. Currently exploring applications of category theory and 
-      higher-dimensional algebra in machine learning.
-    </p>
-    <div class="social-links">
-      <a href="https://github.com/tgergo1" target="_blank" class="social-link">
-        <i class="fab fa-github"></i> GitHub
-      </a>
-      <a href="https://www.linkedin.com/in/tgergo1" target="_blank" class="social-link">
-        <i class="fab fa-linkedin"></i> LinkedIn
-      </a>
-      <a href="https://twitter.com/darwinous" target="_blank" class="social-link">
-        <i class="fab fa-twitter"></i> Twitter
-      </a>
-      <a href="mailto:contact@tgergo1.com" class="social-link">
-        <i class="fas fa-envelope"></i> Email
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2 class="section-title">Recent Posts</h2>
-    <ul class="post-list">
-      {% for post in site.posts limit:5 %}
-      <li class="post-item">
-        <h3 class="post-title">
-          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-        </h3>
-        <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
-        {% if post.excerpt %}
-        <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
-        {% endif %}
-        {% if post.tags %}
-        <div class="tags">
-          {% for tag in post.tags limit:3 %}
-          <span class="tag">{{ tag }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-    <p style="margin-top: 2rem;">
-      <a href="{{ '/blog/' | relative_url }}" class="btn">View All Posts →</a>
-    </p>
-  </div>
-
-  <div class="section">
-    <h2 class="section-title">Featured Projects</h2>
-    <div class="card-grid">
-      {% for project in site.projects limit:3 %}
-      <div class="card">
-        {% if project.image %}
-        <img src="{{ project.image | relative_url }}" alt="{{ project.title }}" class="card-image">
-        {% endif %}
-        <h3 class="card-title">
-          <a href="{{ project.url | relative_url }}">{{ project.title }}</a>
-        </h3>
-        {% if project.tagline %}
-        <p class="card-description">{{ project.tagline }}</p>
-        {% endif %}
-        {% if project.tech_stack %}
-        <div class="tags">
-          {% for tech in project.tech_stack limit:3 %}
-          <span class="tag">{{ tech }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
+<div class="content-section">
+  <h2 class="section-title">Recent Posts</h2>
+  <ul class="post-list">
+    {% for post in site.posts limit:5 %}
+    <li class="post-item">
+      <h3 class="post-title">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h3>
+      <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
+      {% if post.excerpt %}
+      <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+      {% endif %}
+      {% if post.tags %}
+      <div class="tags">
+        {% for tag in post.tags limit:3 %}
+        <span class="tag">{{ tag }}</span>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
-    <p style="margin-top: 2rem;">
-      <a href="{{ '/projects/' | relative_url }}" class="btn">View All Projects →</a>
-    </p>
-  </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <p style="margin-top: 1rem;">
+    <a href="{{ '/blog/' | relative_url }}" class="btn">View All Posts →</a>
+  </p>
+</div>
 
-  <div class="section">
-    <h2 class="section-title">Quick Thoughts</h2>
-    <ul class="post-list">
-      {% for post in site.microblog reversed limit:3 %}
-      <li class="post-item">
-        <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
-        <div class="post-excerpt">{{ post.content }}</div>
-        {% if post.tags %}
-        <div class="tags">
-          {% for tag in post.tags %}
-          <span class="tag">{{ tag }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-    <p style="margin-top: 2rem;">
-      <a href="{{ '/microblog/' | relative_url }}" class="btn-secondary btn">View All Thoughts →</a>
-    </p>
+<div class="content-section">
+  <h2 class="section-title">Featured Projects</h2>
+  <div class="card-grid">
+    {% for project in site.projects limit:3 %}
+    <div class="card">
+      {% if project.image %}
+      <img src="{{ project.image | relative_url }}" alt="{{ project.title }}" class="card-image">
+      {% endif %}
+      <h3 class="card-title">
+        <a href="{{ project.url | relative_url }}">{{ project.title }}</a>
+      </h3>
+      {% if project.tagline %}
+      <p class="card-description">{{ project.tagline }}</p>
+      {% endif %}
+      {% if project.tech_stack %}
+      <div class="tags">
+        {% for tech in project.tech_stack limit:3 %}
+        <span class="tag">{{ tech }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
   </div>
+  <p style="margin-top: 1rem;">
+    <a href="{{ '/projects/' | relative_url }}" class="btn">View All Projects →</a>
+  </p>
+</div>
+
+<div class="content-section">
+  <h2 class="section-title">Quick Thoughts</h2>
+  <ul class="post-list">
+    {% for post in site.microblog reversed limit:3 %}
+    <li class="post-item">
+      <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
+      <div class="post-excerpt">{{ post.content }}</div>
+      {% if post.tags %}
+      <div class="tags">
+        {% for tag in post.tags %}
+        <span class="tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <p style="margin-top: 1rem;">
+    <a href="{{ '/microblog/' | relative_url }}" class="btn-secondary btn">View All Thoughts →</a>
+  </p>
 </div>
