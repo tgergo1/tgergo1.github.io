@@ -523,16 +523,6 @@ article blockquote {
   h2 { font-size: 1.3rem; }
   h3 { font-size: 1.1rem; }
 }
-  overflow-x: auto;
-  margin: 1em 0;
-}
-
-pre code {
-  background: none;
-  padding: 0;
-}
-
-/* Navigation */
 nav {
   position: fixed;
   top: 0;
