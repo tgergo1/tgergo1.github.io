@@ -1,0 +1,37 @@
+# Jekyll configuration for tgergo1.github.io
+title: Gergely Várhelyi-Tóth
+description: Personal website and blog
+author: Gergely Várhelyi-Tóth
+email: contact@tgergo1.com
+url: "https://tgergo1.github.io"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title/
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /blog/:year/:month/:day/:title/
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - archive
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      
+# Pagination
+paginate: 10
+paginate_path: "/blog/page:num/"

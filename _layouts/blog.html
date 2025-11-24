@@ -1,0 +1,58 @@
+---
+layout: default
+---
+
+<div class="blog-container">
+	<header class="blog-header">
+		<h1>Blog</h1>
+		<p class="blog-subtitle">Thoughts, articles, and updates</p>
+	</header>
+	
+	<div class="blog-feed">
+		{% for post in site.posts %}
+		<article class="blog-post-card">
+			<div class="post-header">
+				<img src="{{ '/img/avatar.jpg' | relative_url }}" alt="Gergely Várhelyi-Tóth" class="post-avatar">
+				<div class="post-meta">
+					<h3 class="post-author">Gergely Várhelyi-Tóth</h3>
+					<time class="post-date">{{ post.date | date: "%B %d, %Y" }}</time>
+				</div>
+			</div>
+			
+			<h2 class="post-title">
+				<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+			</h2>
+			
+			{% if post.image %}
+			<div class="post-image-container">
+				<a href="{{ post.url | relative_url }}">
+					<img src="{{ post.image | relative_url }}" alt="{{ post.title }}" class="post-image">
+				</a>
+			</div>
+			{% endif %}
+			
+			<div class="post-excerpt">
+				{{ post.excerpt | strip_html | truncatewords: 50 }}
+			</div>
+			
+			{% if post.tags %}
+			<div class="post-tags">
+				{% for tag in post.tags %}
+				<span class="tag">#{{ tag }}</span>
+				{% endfor %}
+			</div>
+			{% endif %}
+			
+			<div class="post-actions">
+				<a href="{{ post.url | relative_url }}" class="read-more">Read more →</a>
+			</div>
+		</article>
+		{% endfor %}
+		
+		{% if site.posts.size == 0 %}
+		<div class="no-posts">
+			<p>No posts yet. Start sharing your thoughts!</p>
+		</div>
+		{% endif %}
+	</div>
+</div>

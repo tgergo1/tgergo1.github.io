@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<title>{% if page.title %}{{ page.title }} - {% endif %}tgergo1</title>
+		<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}tgergo1.github.io{% endif %}">
+		<meta name="author" content="Gergely Várhelyi-Tóth">
+		<link rel="icon" href="{{ '/img/favicon.ico' | relative_url }}">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+		<link rel="stylesheet" href="{{ '/style.css' | relative_url }}">
+	</head>
+	<body>
+		<nav class="topnav">
+			<a href="{{ '/' | relative_url }}#intro">Intro</a>
+			<a href="{{ '/' | relative_url }}#skills">Skills</a>
+			<a href="{{ '/' | relative_url }}#experience">Experience</a>
+			<a href="{{ '/' | relative_url }}#education">Education</a>
+			<a href="{{ '/' | relative_url }}#news">News</a>
+			<a href="{{ '/blog/' | relative_url }}">Blog</a>
+			<a href="{{ '/' | relative_url }}#other">Other</a>
+		</nav>
+		
+		{{ content }}
+		
+		<script>
+			document.querySelectorAll('.topnav a[href^="#"]').forEach(anchor => {
+				anchor.addEventListener('click', function (e) {
+					e.preventDefault();
+					document.querySelector(this.getAttribute('href')).scrollIntoView({
+						behavior: 'smooth'
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
