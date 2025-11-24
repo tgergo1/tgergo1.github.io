@@ -1,0 +1,55 @@
+---
+layout: default
+---
+
+<div class="project-container">
+	<article class="project-detail">
+		<div class="project-header">
+			<h1 class="project-title">{{ page.title }}</h1>
+			{% if page.tagline %}
+			<p class="project-tagline">{{ page.tagline }}</p>
+			{% endif %}
+		</div>
+		
+		{% if page.image %}
+		<div class="project-image-container">
+			<img src="{{ page.image | relative_url }}" alt="{{ page.title }}" class="project-image">
+		</div>
+		{% endif %}
+		
+		<div class="project-meta">
+			{% if page.tech_stack %}
+			<div class="tech-stack">
+				<strong>Tech Stack:</strong>
+				{% for tech in page.tech_stack %}
+				<span class="tech-badge">{{ tech }}</span>
+				{% endfor %}
+			</div>
+			{% endif %}
+			
+			{% if page.github %}
+			<div class="project-links">
+				<a href="{{ page.github }}" target="_blank" class="project-link">
+					<i class="fab fa-github"></i> View on GitHub
+				</a>
+			</div>
+			{% endif %}
+			
+			{% if page.demo %}
+			<div class="project-links">
+				<a href="{{ page.demo }}" target="_blank" class="project-link">
+					<i class="fas fa-external-link-alt"></i> Live Demo
+				</a>
+			</div>
+			{% endif %}
+		</div>
+		
+		<div class="project-content">
+			{{ content }}
+		</div>
+		
+		<div class="post-actions">
+			<a href="{{ '/projects/' | relative_url }}" class="back-link">← Back to Projects</a>
+		</div>
+	</article>
+</div>

@@ -1,0 +1,103 @@
+---
+layout: default
+title: Reading List
+permalink: /reading/
+---
+
+<div class="reading-container">
+	<header class="reading-header">
+		<h1>Reading List</h1>
+		<p class="reading-subtitle">Books I've read and am reading</p>
+	</header>
+	
+	<div class="reading-sections">
+		<!-- Currently Reading -->
+		<section class="reading-section">
+			<h2>Currently Reading</h2>
+			<div class="books-grid">
+				{% assign reading = site.books | where: "status", "reading" %}
+				{% for book in reading %}
+				<article class="book-card">
+					{% if book.cover %}
+					<a href="{{ book.url | relative_url }}">
+						<img src="{{ book.cover | relative_url }}" alt="{{ book.title }}" class="book-card-cover">
+					</a>
+					{% endif %}
+					<h3 class="book-card-title">
+						<a href="{{ book.url | relative_url }}">{{ book.title }}</a>
+					</h3>
+					{% if book.author %}
+					<p class="book-card-author">{{ book.author }}</p>
+					{% endif %}
+				</article>
+				{% endfor %}
+				{% if reading.size == 0 %}
+				<p class="empty-message">No books currently in progress</p>
+				{% endif %}
+			</div>
+		</section>
+		
+		<!-- Finished -->
+		<section class="reading-section">
+			<h2>Finished</h2>
+			<div class="books-grid">
+				{% assign finished = site.books | where: "status", "finished" | sort: "date_finished" | reverse %}
+				{% for book in finished %}
+				<article class="book-card">
+					{% if book.cover %}
+					<a href="{{ book.url | relative_url }}">
+						<img src="{{ book.cover | relative_url }}" alt="{{ book.title }}" class="book-card-cover">
+					</a>
+					{% endif %}
+					<h3 class="book-card-title">
+						<a href="{{ book.url | relative_url }}">{{ book.title }}</a>
+					</h3>
+					{% if book.author %}
+					<p class="book-card-author">{{ book.author }}</p>
+					{% endif %}
+					{% if book.rating %}
+					<div class="book-card-rating">
+						{% for i in (1..5) %}
+							{% if i <= book.rating %}
+							<i class="fas fa-star"></i>
+							{% else %}
+							<i class="far fa-star"></i>
+							{% endif %}
+						{% endfor %}
+					</div>
+					{% endif %}
+				</article>
+				{% endfor %}
+				{% if finished.size == 0 %}
+				<p class="empty-message">No finished books yet</p>
+				{% endif %}
+			</div>
+		</section>
+		
+		<!-- Want to Read -->
+		<section class="reading-section">
+			<h2>Want to Read</h2>
+			<div class="books-grid">
+				{% assign want = site.books | where: "status", "want" %}
+				{% for book in want %}
+				<article class="book-card">
+					{% if book.cover %}
+					<a href="{{ book.url | relative_url }}">
+						<img src="{{ book.cover | relative_url }}" alt="{{ book.title }}" class="book-card-cover">
+					</a>
+					{% endif %}
+					<h3 class="book-card-title">
+						<a href="{{ book.url | relative_url }}">{{ book.title }}</a>
+					</h3>
+					{% if book.author %}
+					<p class="book-card-author">{{ book.author }}</p>
+					{% endif %}
+				</article>
+				{% endfor %}
+				{% if want.size == 0 %}
+				<p class="empty-message">No books in the wishlist</p>
+				{% endif %}
+			</div>
+		</section>
+	</div>
+</div>

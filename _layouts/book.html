@@ -1,0 +1,61 @@
+---
+layout: default
+---
+
+<div class="book-container">
+	<article class="book-detail">
+		<div class="book-header">
+			{% if page.cover %}
+			<img src="{{ page.cover | relative_url }}" alt="{{ page.title }}" class="book-cover">
+			{% endif %}
+			<div class="book-info">
+				<h1 class="book-title">{{ page.title }}</h1>
+				{% if page.author %}
+				<p class="book-author">by {{ page.author }}</p>
+				{% endif %}
+				{% if page.status %}
+				<span class="book-status status-{{ page.status }}">{{ page.status | capitalize }}</span>
+				{% endif %}
+			</div>
+		</div>
+		
+		<div class="book-meta">
+			{% if page.rating %}
+			<div class="book-rating">
+				<strong>Rating:</strong> 
+				<span class="stars">
+					{% for i in (1..5) %}
+						{% if i <= page.rating %}
+						<i class="fas fa-star"></i>
+						{% else %}
+						<i class="far fa-star"></i>
+						{% endif %}
+					{% endfor %}
+				</span>
+			</div>
+			{% endif %}
+			
+			{% if page.date_finished %}
+			<div class="book-date">
+				<strong>Finished:</strong> {{ page.date_finished | date: "%B %Y" }}
+			</div>
+			{% endif %}
+			
+			{% if page.tags %}
+			<div class="book-tags">
+				{% for tag in page.tags %}
+				<span class="tag">{{ tag }}</span>
+				{% endfor %}
+			</div>
+			{% endif %}
+		</div>
+		
+		<div class="book-content">
+			{{ content }}
+		</div>
+		
+		<div class="post-actions">
+			<a href="{{ '/reading/' | relative_url }}" class="back-link">← Back to Reading List</a>
+		</div>
+	</article>
+</div>

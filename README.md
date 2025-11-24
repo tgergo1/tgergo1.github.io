@@ -1,122 +1,198 @@
-# Personal Website with Jekyll Blog
+# Personal Website with Jekyll Blog & Digital Garden
 
-This website is built with Jekyll, a static site generator that allows you to create blog posts using simple Markdown files.
+This website is a complete digital presence built with Jekyll, featuring a blog, microblog, projects showcase, and more.
 
 ## Features
 
-- **Personal Portfolio**: Showcases skills, experience, education, and news
-- **Blog Section**: Twitter-like feed for posting articles and images
-- **Jekyll-Powered**: Easy content management with Markdown
-- **Responsive Design**: Works on desktop and mobile devices
-- **Clean, Modern UI**: Aesthetic card-based design for blog posts
+- **Modern Homepage**: Clean, modern landing page with hero section and GitHub stats
+- **Blog Section**: Long-form articles with full Markdown support
+- **Microblog**: Twitter-like feed for quick thoughts and images
+- **Project Grid**: Showcase your work with detailed project pages
+- **Now Page**: What you're currently focused on (inspired by nownownow.com)
+- **Reading List**: Track books you're reading, have finished, or want to read
+- **Tools & Stack**: Display the technologies you use
+- **Resume/CV**: Professional card-based resume layout
+- **Dark Mode**: Toggle between light and dark themes with localStorage persistence
+- **GitHub Stats**: Integrated GitHub activity widgets
+- **Responsive Design**: Works beautifully on all devices
+- **Easy Posting**: Simple Markdown-based workflow
 
-## How to Add a New Blog Post
+## Quick Start
 
-1. Create a new Markdown file in the `_posts` directory
-2. Name it following the format: `YYYY-MM-DD-title-of-post.md`
-3. Add front matter at the top of the file:
+### Adding Content
+
+#### Blog Posts
+Create a file in `_posts/` named `YYYY-MM-DD-title.md`:
 
 ```markdown
 ---
 layout: post
 title: "Your Post Title"
-date: YYYY-MM-DD HH:MM:SS +0100
-tags: [tag1, tag2, tag3]
-image: /img/your-image.jpg  # Optional
+date: 2025-11-24 10:00:00 +0100
+tags: [AI, technology]
+image: /img/your-image.jpg
 ---
 
-Your post content goes here in Markdown format...
+Your long-form content here...
 ```
 
-### Example Post
-
-Create a file named `_posts/2025-11-25-my-new-article.md`:
+#### Microblog Posts
+Create a file in `_microblog/` named `YYYY-MM-DD-title.md`:
 
 ```markdown
 ---
-layout: post
-title: "My New Article"
-date: 2025-11-25 10:00:00 +0100
-tags: [technology, AI, innovation]
-image: /img/my-image.jpg
+layout: microblog
+date: 2025-11-24 14:30:00 +0100
+tags: [thoughts, life]
+image: /img/your-image.jpg
 ---
 
-## Introduction
-
-This is my new article about technology...
-
-### Key Points
-
-- Point 1
-- Point 2
-- Point 3
-
-You can include images, links, code blocks, and more!
+Quick thought or update here (280 characters or less recommended)
 ```
 
-## Markdown Formatting
+#### Projects
+Create a file in `_projects/` named `project-slug.md`:
 
-You can use standard Markdown in your posts:
+```markdown
+---
+layout: project
+title: "Project Name"
+tagline: "One-line description"
+tech_stack: [Python, TensorFlow, Docker]
+github: https://github.com/username/repo
+demo: https://demo-url.com
+image: /img/project.jpg
+---
 
-- **Bold text**: `**bold**`
-- *Italic text*: `*italic*`
-- [Links](url): `[text](url)`
-- Images: `![alt text](image-url)`
-- Headers: `## Header 2`, `### Header 3`
-- Lists: Use `-` or `1.` for lists
-- Code: Use backticks `` `code` `` for inline code
-- Code blocks: Use triple backticks with language
+Detailed project description...
+```
+
+#### Books
+Create a file in `_books/` named `book-slug.md`:
+
+```markdown
+---
+layout: book
+title: "Book Title"
+author: "Author Name"
+status: "reading" # or "finished" or "want"
+rating: 5 # 1-5 stars (for finished books)
+date_finished: 2023-06-15
+cover: /img/book-cover.jpg
+tags: [category, topic]
+---
+
+Your thoughts and notes on the book...
+```
+
+## Customization
+
+### Colors
+Edit CSS variables in `style.css`:
+
+```css
+:root {
+  --link-color: #1C9C94;  /* Primary brand color */
+  --link-hover: #147a73;  /* Hover state */
+}
+```
+
+### Navigation
+Edit `_layouts/default.html` to add/remove navigation items.
+
+### Now Page
+Edit `now/index.html` to update your current activities and goals.
+
+### Tools Page
+Edit `tools/index.html` to list your tech stack.
 
 ## Local Development
-
-To run the site locally:
 
 ```bash
 # Install dependencies
 bundle install --path vendor/bundle
 
-# Build and serve the site
+# Build the site
+bundle exec jekyll build
+
+# Serve locally with live reload
 bundle exec jekyll serve
 
-# Visit http://localhost:4000 in your browser
+# Visit http://localhost:4000
 ```
 
-## GitHub Pages
+## Dark Mode
 
-This site is designed to work with GitHub Pages. Simply push your changes to the main branch, and GitHub will automatically build and deploy your site.
+Dark mode is automatically available via the moon/sun icon in the navigation. The preference is saved to localStorage and persists across sessions.
 
-## Directory Structure
+## GitHub Pages Deployment
+
+This site is designed for GitHub Pages. Simply:
+
+1. Push to your repository
+2. GitHub Pages will automatically build and deploy
+3. Your site will be live at `https://username.github.io`
+
+## File Structure
 
 ```
 .
 ├── _config.yml          # Jekyll configuration
-├── _layouts/            # Page layouts
-│   ├── default.html     # Base layout with navigation
-│   ├── blog.html        # Blog feed layout
-│   └── post.html        # Individual post layout
-├── _posts/              # Blog posts (Markdown files)
-├── blog/                # Blog index page
+├── _layouts/            # Page templates
+│   ├── default.html     # Base layout with nav and dark mode
+│   ├── blog.html        # Blog feed
+│   ├── post.html        # Individual blog post
+│   ├── microblog.html   # Microblog post
+│   ├── project.html     # Project detail
+│   └── book.html        # Book review
+├── _posts/              # Blog posts
+├── _microblog/          # Microblog posts
+├── _projects/           # Project pages
+├── _books/              # Reading list
+├── blog/                # Blog index
+├── microblog/           # Microblog index
+├── projects/            # Projects grid
+├── reading/             # Reading list
+├── now/                 # Now page
+├── tools/               # Tools & stack
+├── resume/              # Resume/CV
 ├── img/                 # Images
-├── style.css            # Styles
-├── index.html           # Homepage
-└── README.md            # This file
+├── style.css            # Styles with dark mode
+└── index.html           # Homepage
 ```
 
-## Customization
+## Features in Detail
 
-### Changing Colors
+### GitHub Stats
+The homepage includes live GitHub statistics using:
+- GitHub Readme Stats
+- GitHub Streak Stats
+- Top Languages
 
-Edit `style.css` and look for the color values in the blog styles section (around line 290+). The main brand color is `#1C9C94`.
+These update automatically and respect dark mode.
 
-### Adding Images
+### Responsive Design
+All pages are fully responsive with breakpoints for:
+- Desktop (>768px)
+- Tablet (600-768px)
+- Mobile (<600px)
 
-1. Add images to the `img/` directory
-2. Reference them in posts using `/img/filename.jpg`
+### SEO
+Built-in SEO optimization with:
+- jekyll-seo-tag plugin
+- jekyll-feed for RSS
+- Proper meta tags
+- Semantic HTML
 
-### Modifying Navigation
+## Tips
 
-Edit `_layouts/default.html` to add or remove navigation items.
+- Keep microblog posts short (like tweets)
+- Use high-quality images (recommended: 1200px wide)
+- Tag content consistently for better organization
+- Update your Now page monthly
+- Link projects to GitHub repositories when possible
 
 ## Support
 
-For issues or questions, refer to the [Jekyll documentation](https://jekyllrb.com/docs/).
+For Jekyll documentation: https://jekyllrb.com/docs/
+For GitHub Pages help: https://docs.github.com/en/pages

@@ -11,15 +11,19 @@
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 		<link rel="stylesheet" href="{{ '/style.css' | relative_url }}">
 	</head>
-	<body>
+	<body{% if page.dark_mode %} class="dark-mode"{% endif %}>
 		<nav class="topnav">
-			<a href="{{ '/' | relative_url }}#intro">Intro</a>
-			<a href="{{ '/' | relative_url }}#skills">Skills</a>
-			<a href="{{ '/' | relative_url }}#experience">Experience</a>
-			<a href="{{ '/' | relative_url }}#education">Education</a>
-			<a href="{{ '/' | relative_url }}#news">News</a>
+			<a href="{{ '/' | relative_url }}">Home</a>
 			<a href="{{ '/blog/' | relative_url }}">Blog</a>
-			<a href="{{ '/' | relative_url }}#other">Other</a>
+			<a href="{{ '/microblog/' | relative_url }}">Microblog</a>
+			<a href="{{ '/projects/' | relative_url }}">Projects</a>
+			<a href="{{ '/now/' | relative_url }}">Now</a>
+			<a href="{{ '/reading/' | relative_url }}">Reading</a>
+			<a href="{{ '/tools/' | relative_url }}">Tools</a>
+			<a href="{{ '/resume/' | relative_url }}">Resume</a>
+			<button id="dark-mode-toggle" class="dark-mode-btn" aria-label="Toggle dark mode">
+				<i class="fas fa-moon"></i>
+			</button>
 		</nav>
 		
 		{{ content }}
@@ -32,6 +36,33 @@
 						behavior: 'smooth'
 					});
 				});
+			});
+			
+			// Dark mode toggle
+			const darkModeToggle = document.getElementById('dark-mode-toggle');
+			const body = document.body;
+			const icon = darkModeToggle.querySelector('i');
+			
+			// Check for saved dark mode preference
+			const darkMode = localStorage.getItem('darkMode');
+			if (darkMode === 'enabled') {
+				body.classList.add('dark-mode');
+				icon.classList.remove('fa-moon');
+				icon.classList.add('fa-sun');
+			}
+			
+			darkModeToggle.addEventListener('click', () => {
+				body.classList.toggle('dark-mode');
+				
+				if (body.classList.contains('dark-mode')) {
+					localStorage.setItem('darkMode', 'enabled');
+					icon.classList.remove('fa-moon');
+					icon.classList.add('fa-sun');
+				} else {
+					localStorage.setItem('darkMode', null);
+					icon.classList.remove('fa-sun');
+					icon.classList.add('fa-moon');
+				}
 			});
 		</script>
 	</body>
