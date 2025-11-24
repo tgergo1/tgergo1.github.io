@@ -1,69 +1,78 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-		<title>{% if page.title %}{{ page.title }} - {% endif %}tgergo1</title>
-		<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}tgergo1.github.io{% endif %}">
-		<meta name="author" content="Gergely Várhelyi-Tóth">
-		<link rel="icon" href="{{ '/img/favicon.ico' | relative_url }}">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-		<link rel="stylesheet" href="{{ '/style.css' | relative_url }}">
-	</head>
-	<body{% if page.dark_mode %} class="dark-mode"{% endif %}>
-		<nav class="topnav">
-			<a href="{{ '/' | relative_url }}">Home</a>
-			<a href="{{ '/blog/' | relative_url }}">Blog</a>
-			<a href="{{ '/microblog/' | relative_url }}">Microblog</a>
-			<a href="{{ '/projects/' | relative_url }}">Projects</a>
-			<a href="{{ '/now/' | relative_url }}">Now</a>
-			<a href="{{ '/reading/' | relative_url }}">Reading</a>
-			<a href="{{ '/tools/' | relative_url }}">Tools</a>
-			<a href="{{ '/resume/' | relative_url }}">Resume</a>
-			<button id="dark-mode-toggle" class="dark-mode-btn" aria-label="Toggle dark mode">
-				<i class="fas fa-moon"></i>
-			</button>
-		</nav>
-		
-		{{ content }}
-		
-		<script>
-			document.querySelectorAll('.topnav a[href^="#"]').forEach(anchor => {
-				anchor.addEventListener('click', function (e) {
-					e.preventDefault();
-					document.querySelector(this.getAttribute('href')).scrollIntoView({
-						behavior: 'smooth'
-					});
-				});
-			});
-			
-			// Dark mode toggle
-			const darkModeToggle = document.getElementById('dark-mode-toggle');
-			const body = document.body;
-			const icon = darkModeToggle.querySelector('i');
-			
-			// Check for saved dark mode preference
-			const darkMode = localStorage.getItem('darkMode');
-			if (darkMode === 'enabled') {
-				body.classList.add('dark-mode');
-				icon.classList.remove('fa-moon');
-				icon.classList.add('fa-sun');
-			}
-			
-			darkModeToggle.addEventListener('click', () => {
-				body.classList.toggle('dark-mode');
-				
-				if (body.classList.contains('dark-mode')) {
-					localStorage.setItem('darkMode', 'enabled');
-					icon.classList.remove('fa-moon');
-					icon.classList.add('fa-sun');
-				} else {
-					localStorage.setItem('darkMode', null);
-					icon.classList.remove('fa-sun');
-					icon.classList.add('fa-moon');
-				}
-			});
-		</script>
-	</body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} | {% endif %}Gergely Várhelyi-Tóth</title>
+  <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}Machine Learning Engineer & CEO @ roboGaze{% endif %}">
+  <meta name="author" content="Gergely Várhelyi-Tóth">
+  <link rel="icon" href="{{ '/img/favicon.ico' | relative_url }}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+  <link rel="stylesheet" href="{{ '/style.css' | relative_url }}">
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="{{ '/' | relative_url }}" style="font-weight: 600;">Gergely Várhelyi-Tóth</a>
+      <div class="nav-links">
+        <a href="{{ '/blog/' | relative_url }}">Blog</a>
+        <a href="{{ '/projects/' | relative_url }}">Projects</a>
+        <a href="{{ '/microblog/' | relative_url }}">Microblog</a>
+        <a href="{{ '/now/' | relative_url }}">Now</a>
+        <a href="{{ '/resume/' | relative_url }}">Resume</a>
+        <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  {{ content }}
+
+  <footer>
+    <div class="main-container">
+      <p>© {{ 'now' | date: "%Y" }} Gergely Várhelyi-Tóth. Built with Jekyll.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    const body = document.body;
+    const icon = darkToggle.querySelector('i');
+
+    // Check for saved dark mode preference
+    const darkMode = localStorage.getItem('darkMode');
+    if (darkMode === 'enabled') {
+      body.classList.add('dark-mode');
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    }
+
+    darkToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('darkMode', 'enabled');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      } else {
+        localStorage.setItem('darkMode', null);
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      }
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
 </html>

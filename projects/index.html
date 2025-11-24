@@ -1,66 +1,34 @@
 ---
 layout: default
 title: Projects
-permalink: /projects/
 ---
 
-<div class="projects-container">
-	<header class="projects-header">
-		<h1>Projects</h1>
-		<p class="projects-subtitle">Work, experiments, and side projects</p>
-	</header>
-	
-	<div class="projects-grid">
-		{% for project in site.projects %}
-		<article class="project-card">
-			{% if project.image %}
-			<div class="project-card-image">
-				<a href="{{ project.url | relative_url }}">
-					<img src="{{ project.image | relative_url }}" alt="{{ project.title }}">
-				</a>
-			</div>
-			{% endif %}
-			
-			<div class="project-card-content">
-				<h2 class="project-card-title">
-					<a href="{{ project.url | relative_url }}">{{ project.title }}</a>
-				</h2>
-				
-				{% if project.tagline %}
-				<p class="project-card-tagline">{{ project.tagline }}</p>
-				{% endif %}
-				
-				{% if project.tech_stack %}
-				<div class="project-card-tech">
-					{% for tech in project.tech_stack limit:3 %}
-					<span class="tech-badge">{{ tech }}</span>
-					{% endfor %}
-					{% if project.tech_stack.size > 3 %}
-					<span class="tech-badge">+{{ project.tech_stack.size | minus: 3 }} more</span>
-					{% endif %}
-				</div>
-				{% endif %}
-				
-				<div class="project-card-links">
-					{% if project.github %}
-					<a href="{{ project.github }}" target="_blank" class="project-card-link">
-						<i class="fab fa-github"></i>
-					</a>
-					{% endif %}
-					{% if project.demo %}
-					<a href="{{ project.demo }}" target="_blank" class="project-card-link">
-						<i class="fas fa-external-link-alt"></i>
-					</a>
-					{% endif %}
-				</div>
-			</div>
-		</article>
-		{% endfor %}
-		
-		{% if site.projects.size == 0 %}
-		<div class="no-projects">
-			<p>Projects coming soon!</p>
-		</div>
-		{% endif %}
-	</div>
+<div class="main-container">
+  <div class="content-header">
+    <h1 class="content-title">Projects</h1>
+    <p class="section-intro">Research projects, open-source tools, and professional work in ML and formal verification.</p>
+  </div>
+
+  <div class="card-grid">
+    {% for project in site.projects %}
+    <div class="card">
+      {% if project.image %}
+      <img src="{{ project.image | relative_url }}" alt="{{ project.title }}" class="card-image">
+      {% endif %}
+      <h2 class="card-title">
+        <a href="{{ project.url | relative_url }}">{{ project.title }}</a>
+      </h2>
+      {% if project.tagline %}
+      <p class="card-description">{{ project.tagline }}</p>
+      {% endif %}
+      {% if project.tech_stack %}
+      <div class="tags">
+        {% for tech in project.tech_stack %}
+        <span class="tag">{{ tech }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
 </div>

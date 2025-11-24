@@ -2,38 +2,36 @@
 layout: default
 ---
 
-<div class="blog-container">
-	<article class="blog-post-single">
-		<div class="post-header">
-			<img src="{{ '/img/avatar.jpg' | relative_url }}" alt="Gergely Várhelyi-Tóth" class="post-avatar">
-			<div class="post-meta">
-				<h2 class="post-author">Gergely Várhelyi-Tóth</h2>
-				<time class="post-date">{{ page.date | date: "%B %d, %Y" }}</time>
-			</div>
-		</div>
-		
-		<h1 class="post-title">{{ page.title }}</h1>
-		
-		{% if page.image %}
-		<div class="post-image-container">
-			<img src="{{ page.image | relative_url }}" alt="{{ page.title }}" class="post-image">
-		</div>
-		{% endif %}
-		
-		<div class="post-content">
-			{{ content }}
-		</div>
-		
-		{% if page.tags %}
-		<div class="post-tags">
-			{% for tag in page.tags %}
-			<span class="tag">#{{ tag }}</span>
-			{% endfor %}
-		</div>
-		{% endif %}
-		
-		<div class="post-actions">
-			<a href="{{ '/blog/' | relative_url }}" class="back-link">← Back to Blog</a>
-		</div>
-	</article>
+<div class="main-container">
+  <article>
+    <div class="content-header">
+      <h1 class="content-title">{{ page.title }}</h1>
+      <div class="content-meta">
+        <span><i class="far fa-calendar"></i> {{ page.date | date: "%B %d, %Y" }}</span>
+        {% if page.tags %}
+        <span><i class="fas fa-tags"></i> {{ page.tags | join: ", " }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if page.image %}
+    <img src="{{ page.image | relative_url }}" alt="{{ page.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 2rem;">
+    {% endif %}
+
+    <div class="content-body">
+      {{ content }}
+    </div>
+
+    {% if page.tags %}
+    <div class="tags" style="margin-top: 3rem;">
+      {% for tag in page.tags %}
+      <span class="tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+      <a href="{{ '/blog/' | relative_url }}" class="btn-secondary btn">← Back to Blog</a>
+    </div>
+  </article>
 </div>

@@ -2,166 +2,107 @@
 layout: default
 ---
 
-<div class="home-container">
-	<!-- Hero Section -->
-	<section class="hero-section">
-		<div class="hero-content">
-			<img src="./img/avatar.jpg" alt="Gergely Várhelyi-Tóth" class="hero-avatar">
-			<h1 class="hero-title">Gergely Várhelyi-Tóth</h1>
-			<p class="hero-subtitle">CEO @ roboGaze | Machine Learning Engineer | Formal Verification Expert</p>
-			<p class="hero-description">Building safe and reliable AI systems for automotive applications. Passionate about formal verification, neural network safety, and pushing the boundaries of what's possible with ML.</p>
-			<div class="hero-links">
-				<a href="https://github.com/tgergo1/" target="_blank" class="hero-link">
-					<i class="fab fa-github"></i> GitHub
-				</a>
-				<a href="https://www.linkedin.com/in/tgergo1/" target="_blank" class="hero-link">
-					<i class="fab fa-linkedin"></i> LinkedIn
-				</a>
-				<a href="https://twitter.com/darwinous/" target="_blank" class="hero-link">
-					<i class="fab fa-twitter"></i> Twitter
-				</a>
-			</div>
-		</div>
-	</section>
-	
-	<!-- GitHub Stats Section -->
-	<section class="github-stats-section">
-		<h2>GitHub Activity</h2>
-		<div class="github-stats">
-			<img src="https://github-readme-stats.vercel.app/api?username=tgergo1&show_icons=true&theme=radical&hide_border=true&bg_color=1a1b27&title_color=1C9C94&icon_color=1C9C94&text_color=c9d1d9" alt="GitHub Stats" class="github-stat-card">
-			<img src="https://github-readme-streak-stats.herokuapp.com/?user=tgergo1&theme=radical&hide_border=true&background=1a1b27&ring=1C9C94&fire=1C9C94&currStreakLabel=1C9C94" alt="GitHub Streak" class="github-stat-card">
-		</div>
-		<div class="github-languages">
-			<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=tgergo1&layout=compact&theme=radical&hide_border=true&bg_color=1a1b27&title_color=1C9C94&text_color=c9d1d9" alt="Top Languages" class="github-languages-card">
-		</div>
-	</section>
-	
-	<!-- Latest Posts Section -->
-	<section class="home-section">
-		<h2><i class="fas fa-pen"></i> Latest Blog Posts</h2>
-		<div class="home-grid">
-			{% for post in site.posts limit:3 %}
-			<article class="home-card">
-				{% if post.image %}
-				<div class="home-card-image">
-					<a href="{{ post.url | relative_url }}">
-						<img src="{{ post.image | relative_url }}" alt="{{ post.title }}">
-					</a>
-				</div>
-				{% endif %}
-				<div class="home-card-content">
-					<time class="home-card-date">{{ post.date | date: "%B %d, %Y" }}</time>
-					<h3 class="home-card-title">
-						<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-					</h3>
-					<p class="home-card-excerpt">{{ post.excerpt | strip_html | truncatewords: 20 }}</p>
-				</div>
-			</article>
-			{% endfor %}
-		</div>
-		<div class="home-section-footer">
-			<a href="{{ '/blog/' | relative_url }}" class="view-all-link">View all posts →</a>
-		</div>
-	</section>
-	
-	<!-- Microblog Section -->
-	<section class="home-section">
-		<h2><i class="fas fa-comment"></i> Recent Thoughts</h2>
-		<div class="microblog-preview">
-			{% for post in site.microblog reversed limit:3 %}
-			<article class="microblog-preview-card">
-				<div class="post-header-small">
-					<img src="{{ '/img/avatar.jpg' | relative_url }}" alt="Gergely Várhelyi-Tóth" class="post-avatar-small">
-					<time class="post-date-small">{{ post.date | date: "%b %d" }}</time>
-				</div>
-				<div class="microblog-preview-content">
-					{{ post.content | strip_html | truncatewords: 30 }}
-				</div>
-			</article>
-			{% endfor %}
-			{% if site.microblog.size == 0 %}
-			<p class="empty-message">No microblog posts yet. Stay tuned!</p>
-			{% endif %}
-		</div>
-		<div class="home-section-footer">
-			<a href="{{ '/microblog/' | relative_url }}" class="view-all-link">View all thoughts →</a>
-		</div>
-	</section>
-	
-	<!-- Projects Section -->
-	<section class="home-section">
-		<h2><i class="fas fa-code"></i> Featured Projects</h2>
-		<div class="home-grid">
-			{% for project in site.projects limit:3 %}
-			<article class="home-card">
-				{% if project.image %}
-				<div class="home-card-image">
-					<a href="{{ project.url | relative_url }}">
-						<img src="{{ project.image | relative_url }}" alt="{{ project.title }}">
-					</a>
-				</div>
-				{% endif %}
-				<div class="home-card-content">
-					<h3 class="home-card-title">
-						<a href="{{ project.url | relative_url }}">{{ project.title }}</a>
-					</h3>
-					{% if project.tagline %}
-					<p class="home-card-excerpt">{{ project.tagline }}</p>
-					{% endif %}
-					{% if project.tech_stack %}
-					<div class="home-card-tech">
-						{% for tech in project.tech_stack limit:3 %}
-						<span class="tech-badge-small">{{ tech }}</span>
-						{% endfor %}
-					</div>
-					{% endif %}
-				</div>
-			</article>
-			{% endfor %}
-			{% if site.projects.size == 0 %}
-			<p class="empty-message">Projects coming soon!</p>
-			{% endif %}
-		</div>
-		<div class="home-section-footer">
-			<a href="{{ '/projects/' | relative_url }}" class="view-all-link">View all projects →</a>
-		</div>
-	</section>
-	
-	<!-- Now Section -->
-	<section class="home-section home-now-section">
-		<h2><i class="fas fa-clock"></i> What I'm Up To</h2>
-		<div class="now-preview">
-			<p>🚀 Leading roboGaze as CEO, building formally verified ML models for automotive safety</p>
-			<p>📚 Learning category theory and advanced formal verification techniques</p>
-			<p>🧗 Rock climbing regularly, based in Budapest</p>
-		</div>
-		<div class="home-section-footer">
-			<a href="{{ '/now/' | relative_url }}" class="view-all-link">See full Now page →</a>
-		</div>
-	</section>
-	
-	<!-- Reading Section -->
-	<section class="home-section">
-		<h2><i class="fas fa-book"></i> Currently Reading</h2>
-		<div class="reading-preview">
-			{% assign reading = site.books | where: "status", "reading" %}
-			{% if reading.size > 0 %}
-			<div class="reading-preview-grid">
-				{% for book in reading limit:4 %}
-				<div class="reading-preview-item">
-					{% if book.cover %}
-					<img src="{{ book.cover | relative_url }}" alt="{{ book.title }}" class="reading-preview-cover">
-					{% endif %}
-					<p class="reading-preview-title">{{ book.title }}</p>
-				</div>
-				{% endfor %}
-			</div>
-			{% else %}
-			<p class="empty-message">Not reading anything specific at the moment</p>
-			{% endif %}
-		</div>
-		<div class="home-section-footer">
-			<a href="{{ '/reading/' | relative_url }}" class="view-all-link">View reading list →</a>
-		</div>
-	</section>
+<div class="main-container">
+  <div class="hero">
+    <h1 class="hero-title">Gergely Várhelyi-Tóth</h1>
+    <p class="hero-subtitle">Machine Learning Engineer & CEO @ roboGaze</p>
+    <p class="hero-bio">
+      I work on formal verification of neural networks for safety-critical automotive applications. 
+      My research focuses on ensuring ML models meet ASPICE and ASIL standards through mathematical rigor 
+      and advanced verification techniques. Currently exploring applications of category theory and 
+      higher-dimensional algebra in machine learning.
+    </p>
+    <div class="social-links">
+      <a href="https://github.com/tgergo1" target="_blank" class="social-link">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/tgergo1" target="_blank" class="social-link">
+        <i class="fab fa-linkedin"></i> LinkedIn
+      </a>
+      <a href="https://twitter.com/darwinous" target="_blank" class="social-link">
+        <i class="fab fa-twitter"></i> Twitter
+      </a>
+      <a href="mailto:contact@tgergo1.com" class="social-link">
+        <i class="fas fa-envelope"></i> Email
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Recent Posts</h2>
+    <ul class="post-list">
+      {% for post in site.posts limit:5 %}
+      <li class="post-item">
+        <h3 class="post-title">
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        </h3>
+        <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
+        {% if post.excerpt %}
+        <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+        {% endif %}
+        {% if post.tags %}
+        <div class="tags">
+          {% for tag in post.tags limit:3 %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    <p style="margin-top: 2rem;">
+      <a href="{{ '/blog/' | relative_url }}" class="btn">View All Posts →</a>
+    </p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Featured Projects</h2>
+    <div class="card-grid">
+      {% for project in site.projects limit:3 %}
+      <div class="card">
+        {% if project.image %}
+        <img src="{{ project.image | relative_url }}" alt="{{ project.title }}" class="card-image">
+        {% endif %}
+        <h3 class="card-title">
+          <a href="{{ project.url | relative_url }}">{{ project.title }}</a>
+        </h3>
+        {% if project.tagline %}
+        <p class="card-description">{{ project.tagline }}</p>
+        {% endif %}
+        {% if project.tech_stack %}
+        <div class="tags">
+          {% for tech in project.tech_stack limit:3 %}
+          <span class="tag">{{ tech }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <p style="margin-top: 2rem;">
+      <a href="{{ '/projects/' | relative_url }}" class="btn">View All Projects →</a>
+    </p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Quick Thoughts</h2>
+    <ul class="post-list">
+      {% for post in site.microblog reversed limit:3 %}
+      <li class="post-item">
+        <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
+        <div class="post-excerpt">{{ post.content }}</div>
+        {% if post.tags %}
+        <div class="tags">
+          {% for tag in post.tags %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    <p style="margin-top: 2rem;">
+      <a href="{{ '/microblog/' | relative_url }}" class="btn-secondary btn">View All Thoughts →</a>
+    </p>
+  </div>
 </div>
