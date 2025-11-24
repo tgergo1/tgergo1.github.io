@@ -1,7 +1,7 @@
 /* Clean, Minimal Academic Website Style */
 /* Inspired by modern research personal sites */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
 
 /* CSS Variables */
 :root {
@@ -183,6 +183,7 @@ nav a.active {
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: var(--text-primary);
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
