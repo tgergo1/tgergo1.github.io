@@ -1,0 +1,35 @@
+---
+layout: default
+title: Projects
+permalink: /projects/
+---
+
+<div class="main-container">
+  <div class="content-header">
+    <h1 class="content-title">Projects</h1>
+    <p class="section-intro">Research projects, open-source tools, and professional work in ML and formal verification.</p>
+  </div>
+
+  <div class="card-grid">
+    {% for project in site.projects %}
+    <div class="card">
+      {% if project.image %}
+      <img src="{{ project.image | relative_url }}" alt="{{ project.title }}" class="card-image">
+      {% endif %}
+      <h2 class="card-title">
+        <a href="{{ project.url | relative_url }}">{{ project.title }}</a>
+      </h2>
+      {% if project.tagline %}
+      <p class="card-description">{{ project.tagline }}</p>
+      {% endif %}
+      {% if project.tech_stack %}
+      <div class="tags">
+        {% for tech in project.tech_stack %}
+        <span class="tag">{{ tech }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>

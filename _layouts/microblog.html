@@ -1,0 +1,37 @@
+---
+layout: default
+---
+
+<div class="microblog-container">
+	<article class="microblog-post">
+		<div class="post-header">
+			<img src="{{ '/img/avatar.jpg' | relative_url }}" alt="Gergely Várhelyi-Tóth" class="post-avatar">
+			<div class="post-meta">
+				<h3 class="post-author">Gergely Várhelyi-Tóth</h3>
+				<time class="post-date">{{ page.date | date: "%B %d, %Y at %I:%M %p" }}</time>
+			</div>
+		</div>
+		
+		{% if page.image %}
+		<div class="microblog-image-container">
+			<img src="{{ page.image | relative_url }}" alt="Microblog image" class="microblog-image">
+		</div>
+		{% endif %}
+		
+		<div class="microblog-content">
+			{{ content }}
+		</div>
+		
+		{% if page.tags %}
+		<div class="post-tags">
+			{% for tag in page.tags %}
+			<span class="tag">#{{ tag }}</span>
+			{% endfor %}
+		</div>
+		{% endif %}
+		
+		<div class="post-actions">
+			<a href="{{ '/microblog/' | relative_url }}" class="back-link">← Back to Microblog</a>
+		</div>
+	</article>
+</div>
