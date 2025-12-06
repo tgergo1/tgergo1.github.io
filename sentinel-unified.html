@@ -313,7 +313,8 @@ input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px;
     
     <div class="header-actions">
       <div class="status-bar">
-        <span class="chip" id="gpsChip">📍 GPS: --</span>
+        <span class="chip" id="locationChip">📍 Location: --</span>
+        <button class="btn sm" id="requestLocationBtn" style="display: none;">📍 Enable Location</button>
         <span class="chip" id="connectionChip">🌐 Online</span>
         <span class="chip" id="sessionChip">⏱️ --:--:--</span>
       </div>
@@ -617,7 +618,7 @@ input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px;
           <div style="position: absolute; top: 10px; left: 10px; z-index: 1000;">
             <div class="card" style="padding: 10px 14px;">
               <div style="font-size: 10px; color: var(--text-muted);">Current Position</div>
-              <div style="font-size: 13px; font-weight: 600;" id="nav_position">Waiting for GPS...</div>
+              <div style="font-size: 13px; font-weight: 600;" id="nav_position">Waiting for location...</div>
               <div style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Speed</div>
               <div style="font-size: 13px; font-weight: 600;" id="nav_speed">-- km/h</div>
             </div>
@@ -676,7 +677,7 @@ input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px;
           <div class="card" id="nav_manualControlCard" style="display: none;">
             <div class="card-header">
               <div class="card-title">🎮 Manual Controls</div>
-              <span class="chip" id="nav_gpsStatusChip" style="font-size: 9px; display: none;">GPS Issues</span>
+              <span class="chip" id="nav_locationStatusChip" style="font-size: 9px; display: none;">Location Issues</span>
             </div>
             <div class="card-body">
               <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">Control scenarios manually</div>
@@ -740,7 +741,7 @@ input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px;
     <h3>3. Navigator</h3>
     <ul>
       <li><strong>Load a plan</strong> exported from the Planner</li>
-      <li>Click <strong>Start</strong> to begin navigation with GPS</li>
+      <li>Click <strong>Start</strong> to begin navigation with location tracking</li>
       <li><strong>TTS announcements</strong> guide the driver:
         <ul>
           <li>"Approaching scenario" - ~30 seconds before</li>
@@ -762,7 +763,7 @@ input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px;
     <h3>Tips</h3>
     <ul>
       <li>Use <strong>Chrome</strong> for best TTS quality</li>
-      <li>Grant <strong>GPS permissions</strong> when prompted</li>
+      <li>Grant <strong>location permissions</strong> when prompted</li>
       <li>Keep screen <strong>active</strong> during navigation</li>
       <li>Works <strong>offline</strong> after first load</li>
     </ul>
@@ -810,9 +811,16 @@ const CONFIG = {
   TTS_RATE: 0.92,
   TTS_PITCH: 1.05,
   
-  // GPS reliability
-  GPS_ACCURACY_THRESHOLD: 50,  // Maximum acceptable GPS accuracy in meters
-  GPS_STALE_THRESHOLD: 10000  // Consider GPS stale after 10 seconds
+  // Location access settings
+  LOCATION_ACCURACY_THRESHOLD: 50,  // Maximum acceptable location accuracy in meters
+  LOCATION_HIGH_ACCURACY_THRESHOLD: 10,  // High accuracy threshold in meters (excellent signal)
+  LOCATION_STALE_THRESHOLD: 10000,  // Consider location stale after 10 seconds
+  LOCATION_TIMEOUT: 30000,  // Location request timeout in milliseconds
+  LOCATION_MAX_AGE: 5000,  // Maximum age of cached location in milliseconds
+  LOCATION_ENABLE_HIGH_ACCURACY: true,  // Request high accuracy location
+  
+  // Location permission retry settings
+  LOCATION_PERMISSION_RETRY_DELAY: 2000  // Delay before showing retry button (milliseconds)
 };
 
 // Euro NCAP Scenarios Database
@@ -1584,24 +1592,194 @@ selAll('.nav-tab').forEach(tab => {
   });
 });
 
-// GPS status updates
-let geoWatchId = null;
-function startGPSWatch() {
-  const gpsChip = sel('#gpsChip');
+// Location access management
+let locationWatchId = null;
+let locationPermissionState = 'unknown';
+
+// Check location permission status
+async function checkLocationPermission() {
+  if (!navigator.permissions || !navigator.permissions.query) {
+    // Permissions API not supported, assume we need to try
+    return 'prompt';
+  }
+  
+  try {
+    const result = await navigator.permissions.query({ name: 'geolocation' });
+    locationPermissionState = result.state;
+    
+    // Listen for permission changes
+    result.onchange = () => {
+      locationPermissionState = result.state;
+      console.log('Location permission changed to:', result.state);
+      if (result.state === 'granted') {
+        startLocationWatch();
+      } else if (result.state === 'denied') {
+        showLocationRetryButton('Permission denied');
+      }
+    };
+    
+    return result.state;
+  } catch (err) {
+    console.warn('Permission query failed:', err);
+    return 'prompt';
+  }
+}
+
+// Show retry button for location access
+function showLocationRetryButton(reason) {
+  const locationChip = sel('#locationChip');
+  const retryBtn = sel('#requestLocationBtn');
+  
+  if (locationChip) {
+    locationChip.textContent = `📍 ${reason}`;
+    locationChip.className = 'chip warn';
+    locationChip.style.display = 'inline-flex';
+  }
+  
+  if (retryBtn) {
+    retryBtn.style.display = 'inline-block';
+    retryBtn.onclick = async () => {
+      console.log('User requested location access retry');
+      retryBtn.style.display = 'none';
+      await startLocationWatch();
+    };
+  }
+}
+
+// Start location tracking with comprehensive options
+async function startLocationWatch() {
+  const locationChip = sel('#locationChip');
+  const retryBtn = sel('#requestLocationBtn');
+  
+  // Hide retry button when attempting
+  if (retryBtn) {
+    retryBtn.style.display = 'none';
+  }
+  
+  // Check if geolocation is supported
   if (!navigator.geolocation) {
-    if (gpsChip) { gpsChip.textContent = '📍 No GPS'; gpsChip.className = 'chip warn'; }
+    console.error('Geolocation API not supported');
+    if (locationChip) {
+      locationChip.textContent = '📍 Not supported';
+      locationChip.className = 'chip warn';
+    }
+    showLocationRetryButton('Not supported');
     return;
   }
-  geoWatchId = navigator.geolocation.watchPosition(
-    pos => {
-      if (gpsChip) { gpsChip.textContent = '📍 ±' + Math.round(pos.coords.accuracy) + 'm'; gpsChip.className = 'chip active'; }
+  
+  // Check permission state first
+  const permissionState = await checkLocationPermission();
+  console.log('Location permission state:', permissionState);
+  
+  if (permissionState === 'denied') {
+    console.warn('Location permission denied');
+    showLocationRetryButton('Access denied');
+    return;
+  }
+  
+  // Show attempting status
+  if (locationChip) {
+    locationChip.textContent = '📍 Requesting...';
+    locationChip.className = 'chip';
+  }
+  
+  // Clear any existing watch
+  if (locationWatchId !== null) {
+    navigator.geolocation.clearWatch(locationWatchId);
+    locationWatchId = null;
+  }
+  
+  // Configure location options for maximum compatibility
+  const locationOptions = {
+    enableHighAccuracy: CONFIG.LOCATION_ENABLE_HIGH_ACCURACY,
+    timeout: CONFIG.LOCATION_TIMEOUT,
+    maximumAge: CONFIG.LOCATION_MAX_AGE
+  };
+  
+  console.log('Starting location watch with options:', locationOptions);
+  
+  // Start watching position
+  locationWatchId = navigator.geolocation.watchPosition(
+    (position) => {
+      // Success callback
+      const accuracy = Math.round(position.coords.accuracy);
+      console.log('Location update received:', {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: accuracy,
+        altitude: position.coords.altitude,
+        altitudeAccuracy: position.coords.altitudeAccuracy,
+        heading: position.coords.heading,
+        speed: position.coords.speed,
+        timestamp: new Date(position.timestamp).toISOString()
+      });
+      
+      if (locationChip) {
+        const lat = position.coords.latitude.toFixed(5);
+        const lng = position.coords.longitude.toFixed(5);
+        locationChip.textContent = `📍 ${lat}, ${lng} (±${accuracy}m)`;
+        locationChip.title = `Latitude: ${lat}, Longitude: ${lng}, Accuracy: ±${accuracy}m`;
+        
+        // Color code based on accuracy
+        if (accuracy <= CONFIG.LOCATION_HIGH_ACCURACY_THRESHOLD) {
+          locationChip.className = 'chip success';
+        } else if (accuracy <= CONFIG.LOCATION_ACCURACY_THRESHOLD) {
+          locationChip.className = 'chip active';
+        } else {
+          locationChip.className = 'chip warn';
+        }
+      }
+      
+      // Hide retry button on success
+      if (retryBtn) {
+        retryBtn.style.display = 'none';
+      }
     },
-    err => {
-      const msgs = {1: 'Denied', 2: 'Unavailable', 3: 'Timeout'};
-      if (gpsChip) { gpsChip.textContent = '📍 ' + (msgs[err.code] || 'Error'); gpsChip.className = 'chip warn'; }
+    (error) => {
+      // Error callback with detailed messages
+      console.error('Location error:', error);
+      
+      let errorMsg = 'Error';
+      let errorDetail = '';
+      
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          errorMsg = 'Access denied';
+          errorDetail = 'Location permission was denied. Please enable location access in your browser settings.';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMsg = 'Unavailable';
+          errorDetail = 'Location information is unavailable. This may be due to poor signal, no network connection, or device limitations.';
+          break;
+        case error.TIMEOUT:
+          errorMsg = 'Timeout';
+          errorDetail = 'Location request timed out. This may be due to poor signal or device limitations.';
+          break;
+        default:
+          errorMsg = 'Unknown error';
+          errorDetail = error.message || 'An unknown error occurred while accessing location.';
+      }
+      
+      console.warn(`Location error: ${errorMsg} - ${errorDetail}`);
+      
+      if (locationChip) {
+        locationChip.textContent = `📍 ${errorMsg}`;
+        locationChip.className = 'chip warn';
+      }
+      
+      // Show retry button after a delay for recoverable errors
+      if (error.code === error.PERMISSION_DENIED || 
+          error.code === error.POSITION_UNAVAILABLE || 
+          error.code === error.TIMEOUT) {
+        setTimeout(() => {
+          showLocationRetryButton(errorMsg);
+        }, CONFIG.LOCATION_PERMISSION_RETRY_DELAY);
+      }
     },
-    {enableHighAccuracy: true, timeout: 30000, maximumAge: 5000}
+    locationOptions
   );
+  
+  console.log('Location watch started with ID:', locationWatchId);
 }
 
 // Session timer
@@ -2472,7 +2650,7 @@ let navigatorMap = null;
 let navigatorMapInitialized = false;
 let navigatorLayers = [];
 let positionMarker = null;
-let gpsWatchId = null;
+let navigatorLocationWatchId = null;
 
 function initNavigatorMap() {
   if (navigatorMapInitialized) return;
@@ -2589,10 +2767,10 @@ const NavigatorModule = {
   completedScenarios: new Set(),
   navigationStartTime: null,
   
-  // GPS reliability tracking
-  lastGPSUpdate: null,
-  lastGPSAccuracy: null,
-  gpsReliable: true,
+  // Location reliability tracking
+  lastLocationUpdate: null,
+  lastLocationAccuracy: null,
+  locationReliable: true,
   
   // Geofence entry detection with hysteresis
   scenarioProximityState: new Map(), // scenarioIndex -> { wasInside: bool, consecutiveInside: number }
@@ -2894,11 +3072,11 @@ const NavigatorModule = {
     if (posEl) posEl.textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
     if (speedEl) speedEl.textContent = `${Math.round((speed || 0) * 3.6)} km/h`;
     
-    // Update GPS chip
-    const gpsChip = safeEl('gpsChip');
-    if (gpsChip) {
-      gpsChip.textContent = '📍 GPS: Active';
-      gpsChip.className = 'chip ok';
+    // Update location chip
+    const locationChip = safeEl('locationChip');
+    if (locationChip) {
+      locationChip.textContent = '📍 Active';
+      locationChip.className = 'chip active';
     }
     
     // Update position marker on map
@@ -2921,29 +3099,29 @@ const NavigatorModule = {
     const now = Date.now();
     const elapsed = (now - this.navigationStartTime) / 1000;
     
-    // Update GPS reliability
-    this.lastGPSUpdate = now;
-    this.lastGPSAccuracy = accuracy;
-    const gpsStale = this.lastGPSUpdate && (now - this.lastGPSUpdate > CONFIG.GPS_STALE_THRESHOLD);
-    const gpsInaccurate = accuracy && accuracy > CONFIG.GPS_ACCURACY_THRESHOLD;
-    this.gpsReliable = !gpsStale && !gpsInaccurate;
+    // Update location reliability
+    this.lastLocationUpdate = now;
+    this.lastLocationAccuracy = accuracy;
+    const locationStale = this.lastLocationUpdate && (now - this.lastLocationUpdate > CONFIG.LOCATION_STALE_THRESHOLD);
+    const locationInaccurate = accuracy && accuracy > CONFIG.LOCATION_ACCURACY_THRESHOLD;
+    this.locationReliable = !locationStale && !locationInaccurate;
     
-    // Update GPS status
-    const gpsChip = safeEl('gpsChip');
-    const gpsStatusChip = safeEl('nav_gpsStatusChip');
-    if (!this.gpsReliable) {
-      if (gpsChip) {
-        gpsChip.textContent = '📍 GPS: Unreliable';
-        gpsChip.className = 'chip warn';
+    // Update location status
+    const locationChip = safeEl('locationChip');
+    const locationStatusChip = safeEl('nav_locationStatusChip');
+    if (!this.locationReliable) {
+      if (locationChip) {
+        locationChip.textContent = '📍 Unreliable';
+        locationChip.className = 'chip warn';
       }
-      if (gpsStatusChip) {
-        gpsStatusChip.style.display = '';
-        gpsStatusChip.className = 'chip warn';
+      if (locationStatusChip) {
+        locationStatusChip.style.display = '';
+        locationStatusChip.className = 'chip warn';
       }
       this.manualControlMode = true;
     } else {
-      if (gpsStatusChip) {
-        gpsStatusChip.style.display = 'none';
+      if (locationStatusChip) {
+        locationStatusChip.style.display = 'none';
       }
     }
     
@@ -2983,7 +3161,7 @@ const NavigatorModule = {
       }
       
       // Check by proximity with robust geofence detection
-      else if (s.coords && this.gpsReliable) {
+      else if (s.coords && this.locationReliable) {
         const dist = this.distanceBetween(lat, lon, s.coords[0], s.coords[1]);
         
         // Initialize proximity state
@@ -3109,21 +3287,41 @@ const NavigatorModule = {
     this.currentScenario = null;
     sessionStart = Date.now();
     
-    // Start GPS tracking
+    // Start location tracking
     if (navigator.geolocation) {
-      gpsWatchId = navigator.geolocation.watchPosition(
+      navigatorLocationWatchId = navigator.geolocation.watchPosition(
         (pos) => this.updatePosition(pos.coords.latitude, pos.coords.longitude, pos.coords.speed, pos.coords.accuracy),
         (err) => {
-          console.warn('GPS error:', err);
-          const gpsChip = safeEl('gpsChip');
-          if (gpsChip) {
-            gpsChip.textContent = '📍 GPS: Error';
-            gpsChip.className = 'chip warn';
+          console.warn('Location error during navigation:', err);
+          
+          let errorMsg = 'Error';
+          switch (err.code) {
+            case err.PERMISSION_DENIED:
+              errorMsg = 'Access denied';
+              break;
+            case err.POSITION_UNAVAILABLE:
+              errorMsg = 'Unavailable';
+              break;
+            case err.TIMEOUT:
+              errorMsg = 'Timeout';
+              break;
           }
+          
+          const locationChip = safeEl('locationChip');
+          if (locationChip) {
+            locationChip.textContent = `📍 ${errorMsg}`;
+            locationChip.className = 'chip warn';
+          }
+          
+          // Enable manual control mode
           this.manualControlMode = true;
           this.showManualControls();
         },
-        { enableHighAccuracy: true, timeout: 30000, maximumAge: 5000 }
+        {
+          enableHighAccuracy: CONFIG.LOCATION_ENABLE_HIGH_ACCURACY,
+          timeout: CONFIG.LOCATION_TIMEOUT,
+          maximumAge: CONFIG.LOCATION_MAX_AGE
+        }
       );
     }
     
@@ -3167,10 +3365,10 @@ const NavigatorModule = {
   stopNavigation() {
     this.isNavigating = false;
     
-    // Stop GPS tracking
-    if (gpsWatchId !== null) {
-      navigator.geolocation.clearWatch(gpsWatchId);
-      gpsWatchId = null;
+    // Stop location tracking
+    if (navigatorLocationWatchId !== null) {
+      navigator.geolocation.clearWatch(navigatorLocationWatchId);
+      navigatorLocationWatchId = null;
     }
     
     // Stop update interval
@@ -3432,7 +3630,7 @@ function initHelpModal() {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   updateOnlineStatus();
-  startGPSWatch();
+  startLocationWatch();
   setInterval(updateSessionTimer, 1000);
   
   // Initialize modules
