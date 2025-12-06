@@ -1,0 +1,3456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Sentinel • Data Collection Platform</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+<style>
+:root {
+  --rose-50: #fff1f2; --rose-100: #ffe4e6; --rose-200: #fecdd3;
+  --rose-300: #fda4af; --rose-400: #fb7185; --rose-500: #f43f5e;
+  --rose-600: #e11d48; --rose-700: #be123c; --rose-800: #9f1239; --rose-900: #881337;
+  --bg: #fff;
+  --bg-gradient: radial-gradient(1200px 800px at -10% -10%, rgba(253,164,175,.35), transparent 60%),
+                 radial-gradient(1400px 900px at 110% 110%, rgba(251,113,133,.25), transparent 60%),
+                 linear-gradient(180deg, #fff, var(--rose-50));
+  --panel: rgba(255,255,255,.85); --panel-strong: rgba(255,255,255,.95);
+  --panel-border: rgba(244,63,94,.16); --glass: rgba(255,255,255,.7);
+  --text: #1f2937; --text-muted: #6b7280;
+  --accent: var(--rose-600); --accent-light: var(--rose-400); --accent-dark: var(--rose-800);
+  --good: #166534; --good-bg: #dcfce7; --good-border: #bbf7d0;
+  --warn: #991b1b; --warn-bg: #fee2e2; --warn-border: #fecaca;
+  --info: #0c4a6e; --info-bg: #e0f2fe; --info-border: #bae6fd;
+  --shadow: 0 6px 24px rgba(0,0,0,.06); --shadow-lg: 0 8px 30px rgba(0,0,0,.08);
+  --radius: 14px; --radius-lg: 16px; --blur: 12px;
+  --input-bg: #fff; --input-border: #e5e7eb;
+  --header-bg: rgba(255,255,255,.92); --tab-active-bg: white; --tab-bg: transparent;
+}
+
+[data-theme="dark"] {
+  --bg: #0f0a0c;
+  --bg-gradient: radial-gradient(1200px 800px at -10% -10%, rgba(190,18,60,.25), transparent 60%),
+                 radial-gradient(1400px 900px at 110% 110%, rgba(159,18,57,.20), transparent 60%),
+                 linear-gradient(180deg, #0f0a0c, #1a0a10);
+  --panel: rgba(30,10,15,.85); --panel-strong: rgba(40,15,20,.95);
+  --panel-border: rgba(251,113,133,.25); --glass: rgba(40,15,20,.7);
+  --text: #fce7f3; --text-muted: #f9a8d4;
+  --accent: var(--rose-400); --accent-light: var(--rose-300); --accent-dark: var(--rose-500);
+  --good: #86efac; --good-bg: rgba(55,224,161,.18); --good-border: rgba(55,224,161,.4);
+  --warn: #fca5a5; --warn-bg: rgba(255,107,107,.18); --warn-border: rgba(255,107,107,.4);
+  --info: #7dd3fc; --info-bg: rgba(56,189,248,.18); --info-border: rgba(56,189,248,.4);
+  --shadow: 0 6px 24px rgba(0,0,0,.4); --shadow-lg: 0 20px 40px rgba(0,0,0,.5);
+  --input-bg: rgba(40,15,20,.9); --input-border: rgba(251,113,133,.3);
+  --header-bg: rgba(20,8,12,.92); --tab-active-bg: rgba(50,20,25,.95); --tab-bg: transparent;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+body { background: var(--bg-gradient); color: var(--text); overflow: hidden; }
+
+.app { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
+
+header.app-header {
+  display: flex; align-items: center; gap: 14px; padding: 10px 18px;
+  background: var(--header-bg); backdrop-filter: blur(var(--blur));
+  border-bottom: 1px solid var(--panel-border); box-shadow: var(--shadow);
+  flex-wrap: wrap; z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 42px; height: 42px; border-radius: 10px; background: white; padding: 3px;
+        box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,.06); }
+.brand-text h1 { margin: 0; font-size: clamp(15px, 2vw, 20px); color: var(--accent-dark);
+                 letter-spacing: -0.02em; font-weight: 800; }
+.brand-text p { margin: 2px 0 0; color: var(--text-muted); font-size: 10px; }
+
+.main-nav { display: flex; gap: 3px; background: rgba(244,63,94,.08); padding: 3px;
+            border-radius: var(--radius); border: 1px solid rgba(244,63,94,.12); margin-left: auto; }
+.nav-tab { padding: 7px 12px; border-radius: 9px; background: var(--tab-bg); border: none;
+           cursor: pointer; font-weight: 600; font-size: 11px; color: var(--accent-dark);
+           transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+.nav-tab:hover { background: rgba(244,63,94,.12); }
+.nav-tab.active { background: var(--tab-active-bg); box-shadow: var(--shadow); color: var(--accent); }
+.nav-tab .icon { font-size: 14px; }
+
+[data-theme="dark"] .main-nav { background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.2); }
+[data-theme="dark"] .nav-tab { color: var(--rose-300); }
+[data-theme="dark"] .nav-tab:hover { background: rgba(251,113,133,.18); }
+[data-theme="dark"] .nav-tab.active { background: rgba(251,113,133,.25); color: var(--rose-200); }
+
+.header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px;
+       border: 1px solid rgba(0,0,0,.08); background: white; cursor: pointer; font-size: 11px;
+       font-weight: 500; box-shadow: 0 3px 10px rgba(0,0,0,.04); transition: all 0.2s; color: var(--text); }
+.btn:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(244,63,94,.1); }
+.btn.primary { background: var(--accent); color: white; border-color: transparent; }
+.btn.primary:hover { background: var(--accent-dark); }
+.btn.secondary { background: var(--glass); }
+.btn.danger { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-border); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn.sm { padding: 5px 8px; font-size: 10px; }
+
+[data-theme="dark"] .btn { background: var(--panel); border-color: var(--panel-border); color: var(--text); }
+[data-theme="dark"] .btn.primary { background: linear-gradient(180deg, rgba(244,63,94,.55), rgba(225,29,72,.4));
+                                    border-color: rgba(244,63,94,.65); }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px;
+        background: var(--glass); border: 1px solid var(--panel-border); color: var(--text-muted);
+        font-size: 10px; font-weight: 500; }
+.chip.active, .chip.ok { background: var(--good-bg); color: var(--good); border-color: var(--good-border); }
+.chip.warning, .chip.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-border); }
+.chip.info { background: var(--info-bg); color: var(--info); border-color: var(--info-border); }
+
+.card { background: var(--panel); backdrop-filter: blur(var(--blur)); border: 1px solid var(--panel-border);
+        border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+.card-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+               border-bottom: 1px solid var(--panel-border); gap: 8px; flex-wrap: wrap; }
+.card-title { font-weight: 700; font-size: 12px; color: var(--accent-dark); }
+.card-body { padding: 12px; }
+
+label { font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500; }
+input[type="text"], input[type="date"], input[type="time"], input[type="number"], input[type="email"],
+select, textarea { width: 100%; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--input-border);
+                   background: var(--input-bg); font-size: 12px; color: var(--text); transition: border-color 0.2s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { min-height: 60px; resize: vertical; }
+input[type="range"] { accent-color: var(--accent); }
+input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+.main-content { overflow: hidden; position: relative; }
+.tab-panel { display: none; height: 100%; overflow: auto; }
+.tab-panel.active { display: block; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.row { display: flex; align-items: center; gap: 8px; }
+.group { display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .main-nav { margin-left: 0; width: 100%; justify-content: center; flex-wrap: wrap; }
+  header.app-header { justify-content: center; } }
+@media (max-width: 600px) { .nav-tab span:not(.icon) { display: none; } .nav-tab { padding: 7px 10px; }
+  .brand-text h1 { font-size: 13px; } .brand-text p { display: none; } }
+
+/* Enhanced mobile responsiveness for phone screens */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  .btn { padding: 10px 14px; font-size: 12px; min-height: 40px; }
+  .btn.sm { padding: 8px 12px; min-height: 36px; }
+  
+  /* Optimize map container */
+  #navigatorMap, #plannerMap { min-height: 250px !important; height: 40vh !important; }
+  
+  /* Better spacing for cards */
+  .card { padding: 12px; }
+  .card-body { padding: 10px; }
+  
+  /* Improve scenario cards */
+  .scenario-card { padding: 10px; margin-bottom: 8px; }
+  .scenario-card .type { font-size: 13px; }
+  .scenario-card .movement { font-size: 11px; }
+  
+  /* Manual control buttons - full width on small screens */
+  #nav_manualControlCard .btn { padding: 10px 8px; font-size: 11px; }
+  
+  /* TTS bar improvements */
+  #nav_ttsBar { padding: 12px; }
+  #nav_ttsBar .instruction { font-size: 14px; }
+  #nav_ttsBar .details { font-size: 11px; }
+  
+  /* Header compact mode */
+  header.app-header { padding: 8px 12px; gap: 8px; }
+  .logo { width: 36px; height: 36px; }
+  
+  /* Status chips smaller */
+  .chip { padding: 4px 8px; font-size: 10px; }
+  
+  /* Form inputs larger */
+  input[type="text"], input[type="date"], input[type="time"], input[type="number"], select {
+    min-height: 40px; font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Very small phones - ultra-compact mode */
+  .app-header { padding: 6px 10px; }
+  .brand-text h1 { font-size: 11px; }
+  .logo { width: 32px; height: 32px; }
+  
+  /* Stack navigation buttons vertically */
+  .header-actions { width: 100%; }
+  .main-nav { padding: 2px; gap: 2px; }
+  .nav-tab { padding: 6px 8px; font-size: 10px; }
+  
+  /* Optimize map for small screens */
+  #navigatorMap, #plannerMap { min-height: 200px !important; height: 35vh !important; }
+  
+  /* Buttons full width in very narrow screens */
+  .card-body > .row { flex-direction: column; }
+  .card-body > .row > * { flex: 1 1 100% !important; min-width: 100%; }
+  
+  /* Manual controls in compact grid */
+  #nav_manualControlCard .row { gap: 4px; }
+  #nav_manualControlCard .btn { font-size: 10px; padding: 8px 6px; }
+}
+
+/* Landscape orientation on phones */
+@media (max-width: 900px) and (orientation: landscape) {
+  /* Use more horizontal space in landscape */
+  .grid-2 { grid-template-columns: 1fr 1fr !important; }
+  #navigatorMap, #plannerMap { height: 70vh !important; }
+  
+  /* Compact sidebar */
+  .card { padding: 8px; }
+  .card-body { padding: 6px; }
+}
+
+.theme-toggle { display: flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 8px;
+                background: var(--glass); border: 1px solid var(--panel-border); cursor: pointer;
+                font-size: 10px; color: var(--text-muted); }
+.theme-toggle input { display: none; }
+.theme-toggle:hover { border-color: var(--accent); }
+
+.status-bar { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+
+.toast-container { position: fixed; bottom: 14px; right: 14px; z-index: 10000;
+                   display: flex; flex-direction: column; gap: 5px; }
+.toast { background: var(--panel-strong); border: 1px solid var(--panel-border); border-radius: 10px;
+         padding: 9px 12px; backdrop-filter: blur(var(--blur)); animation: slideIn 0.3s ease;
+         max-width: 280px; box-shadow: var(--shadow-lg); font-size: 11px; }
+.toast.success { border-color: var(--good-border); }
+.toast.error { border-color: var(--warn-border); }
+.toast.info { border-color: var(--info-border); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.offline-banner { position: fixed; top: 0; left: 0; right: 0; background: var(--warn-bg); color: var(--warn);
+                  padding: 5px 12px; text-align: center; font-size: 11px; font-weight: 600;
+                  z-index: 9999; display: none; border-bottom: 1px solid var(--warn-border); }
+.offline-banner.show { display: block; }
+
+/* Planner panel layout */
+#plannerPanel { position: relative; }
+#plannerPanel > div { height: 100%; }
+
+/* Navigator panel layout */
+#navigatorPanel > div { height: 100%; }
+#navigatorPanel .card { position: relative; }
+
+/* Leaflet map containers */
+#plannerMap, #navigatorMap { min-height: 300px; }
+
+/* Search suggestions dropdown */
+.search-container { position: relative; }
+.search-suggestions { position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background: var(--panel-strong);
+                      border: 1px solid var(--panel-border); border-radius: 10px; max-height: 200px; overflow-y: auto;
+                      display: none; box-shadow: var(--shadow-lg); margin-top: 4px; }
+.search-suggestions.show { display: block; }
+.search-suggestion { padding: 8px 10px; cursor: pointer; font-size: 11px; border-bottom: 1px solid var(--panel-border); }
+.search-suggestion:last-child { border-bottom: none; }
+.search-suggestion:hover { background: var(--glass); }
+
+/* TTS announcement bar */
+.tts-bar { position: absolute; bottom: 10px; left: 10px; right: 10px; z-index: 1000;
+           background: var(--panel-strong); border: 2px solid var(--good-border); border-radius: 12px;
+           padding: 14px 18px; display: none; backdrop-filter: blur(var(--blur)); }
+.tts-bar.active { display: block; animation: pulse 1.5s ease-in-out infinite; }
+.tts-bar .instruction { font-size: 18px; font-weight: 700; color: var(--good); }
+.tts-bar .details { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+@keyframes pulse { 0%, 100% { border-color: var(--good-border); } 50% { border-color: var(--good); } }
+
+/* Scenario cards in navigator */
+.scenario-card { background: var(--glass); border: 1px solid var(--panel-border); border-radius: 10px;
+                 padding: 10px; margin-bottom: 8px; transition: all 0.2s; }
+.scenario-card.active { border-color: var(--good-border); background: var(--good-bg); }
+.scenario-card.completed { opacity: 0.5; text-decoration: line-through; }
+.scenario-card .type { font-weight: 700; font-size: 12px; }
+.scenario-card .movement { font-size: 10px; color: var(--text-muted); }
+.scenario-card .timing { font-size: 10px; color: var(--info); margin-top: 4px; }
+
+/* Help button */
+.help-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: none;
+              align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.help-modal.show { display: flex; }
+.help-content { background: var(--panel-strong); border: 1px solid var(--panel-border); border-radius: var(--radius-lg);
+                max-width: 700px; max-height: 85vh; overflow: auto; padding: 24px; box-shadow: var(--shadow-lg); margin: 20px; }
+.help-content h2 { margin: 0 0 16px 0; color: var(--accent-dark); }
+.help-content h3 { margin: 20px 0 10px 0; color: var(--accent); font-size: 14px; }
+.help-content p, .help-content li { font-size: 12px; line-height: 1.6; margin: 6px 0; }
+.help-content ul { padding-left: 20px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="offline-banner" id="offlineBanner">⚠️ Offline - Data saved locally</div>
+
+  <header class="app-header">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="#e11d48"/>
+        <path d="M30 50 L50 30 L70 50 L50 70 Z" fill="white"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Sentinel Data Platform</h1>
+        <p>Euro NCAP DSM Protocol Data Collection</p>
+      </div>
+    </div>
+    
+    <nav class="main-nav" role="tablist">
+      <button class="nav-tab active" role="tab" data-tab="pretrip" aria-selected="true">
+        <span class="icon">📋</span><span>Pre-Trip</span>
+      </button>
+      <button class="nav-tab" role="tab" data-tab="planner" aria-selected="false">
+        <span class="icon">🗺️</span><span>Planner</span>
+      </button>
+      <button class="nav-tab" role="tab" data-tab="navigator" aria-selected="false">
+        <span class="icon">🧭</span><span>Navigator</span>
+      </button>
+    </nav>
+    
+    <div class="header-actions">
+      <div class="status-bar">
+        <span class="chip" id="gpsChip">📍 GPS: --</span>
+        <span class="chip" id="connectionChip">🌐 Online</span>
+        <span class="chip" id="sessionChip">⏱️ --:--:--</span>
+      </div>
+      <button class="btn sm" id="helpBtn" title="User Guide">❓ Help</button>
+      <label class="theme-toggle" title="Toggle Theme">
+        <input type="checkbox" id="themeToggle"/>
+        <span>🌓</span>
+      </label>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <!-- PRE-TRIP PANEL - Built directly into unified file for robustness -->
+    <div class="tab-panel active" id="pretripPanel" data-panel="pretrip">
+      <div style="max-width: 1100px; margin: 0 auto; padding: 20px;">
+        <div class="card" style="margin-bottom: 12px;">
+          <div class="card-header">
+            <div class="card-title">🚗 Driver & Session</div>
+            <div class="row" style="gap: 8px;">
+              <span class="chip" id="pretripJourneyId">Journey ID: --</span>
+              <span class="chip warn" id="pretripStatusPill">Missing required fields</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="group">
+                <label>Driver code *</label>
+                <input id="pretrip_driverCode" type="text" placeholder="D01"/>
+              </div>
+              <div class="group">
+                <label>Date *</label>
+                <input id="pretrip_date" type="date"/>
+              </div>
+              <div class="group">
+                <label>Start time *</label>
+                <input id="pretrip_startTime" type="time"/>
+              </div>
+              <div class="group">
+                <label>Vehicle ID *</label>
+                <input id="pretrip_vehicleId" type="text" placeholder="VAN-01"/>
+              </div>
+              <div class="group">
+                <label>Rig ID</label>
+                <input id="pretrip_rigId" type="text" placeholder="RIG-A"/>
+              </div>
+              <div class="group" style="justify-content: flex-end;">
+                <label class="row" style="gap: 8px; cursor: pointer;">
+                  <input id="pretrip_consent" type="checkbox"/>
+                  <span style="font-size: 11px;">Consent obtained & fit to drive</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 12px;">
+          <div class="card-header">
+            <div class="card-title">🛣️ Route & Conditions</div>
+          </div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="group">
+                <label>Route template *</label>
+                <select id="pretrip_routeTemplate">
+                  <option value="">Select route</option>
+                  <option value="URB">URB — Urban stop-and-go</option>
+                  <option value="SUB">SUB — Suburban / Ring road</option>
+                  <option value="MWY">MWY — Motorway monotony</option>
+                  <option value="RUR">RUR — Rural two-lane</option>
+                </select>
+              </div>
+              <div class="group">
+                <label>Time of day *</label>
+                <select id="pretrip_timeOfDay">
+                  <option value="">Select</option>
+                  <option value="AM">Morning</option>
+                  <option value="DAY">Day</option>
+                  <option value="EVE">Evening / Dusk</option>
+                  <option value="NIGHT">Night</option>
+                </select>
+              </div>
+              <div class="group">
+                <label>Weather *</label>
+                <select id="pretrip_weather">
+                  <option value="">Select</option>
+                  <option value="SUNNY">Sunny</option>
+                  <option value="CLOUDY">Cloudy</option>
+                  <option value="RAIN">Rain</option>
+                  <option value="SNOW">Snow</option>
+                  <option value="MIXED">Mixed</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top: 12px;">
+              <label>Accessories</label>
+              <div class="grid-3" style="gap: 8px;">
+                <label class="row" style="gap: 6px; padding: 6px 10px; background: var(--glass); border-radius: 8px; border: 1px solid var(--panel-border); cursor: pointer;">
+                  <input id="pretrip_acc_glasses" type="checkbox"/><span style="font-size: 11px;">Glasses</span>
+                </label>
+                <label class="row" style="gap: 6px; padding: 6px 10px; background: var(--glass); border-radius: 8px; border: 1px solid var(--panel-border); cursor: pointer;">
+                  <input id="pretrip_acc_sunglasses" type="checkbox"/><span style="font-size: 11px;">Sunglasses</span>
+                </label>
+                <label class="row" style="gap: 6px; padding: 6px 10px; background: var(--glass); border-radius: 8px; border: 1px solid var(--panel-border); cursor: pointer;">
+                  <input id="pretrip_acc_hat" type="checkbox"/><span style="font-size: 11px;">Hat</span>
+                </label>
+                <label class="row" style="gap: 6px; padding: 6px 10px; background: var(--glass); border-radius: 8px; border: 1px solid var(--panel-border); cursor: pointer;">
+                  <input id="pretrip_acc_mask" type="checkbox"/><span style="font-size: 11px;">Mask</span>
+                </label>
+                <label class="row" style="gap: 6px; padding: 6px 10px; background: var(--glass); border-radius: 8px; border: 1px solid var(--panel-border); cursor: pointer;">
+                  <input id="pretrip_acc_longhair" type="checkbox"/><span style="font-size: 11px;">Long hair</span>
+                </label>
+                <label class="row" style="gap: 6px; padding: 6px 10px; background: var(--glass); border-radius: 8px; border: 1px solid var(--panel-border); cursor: pointer;">
+                  <input id="pretrip_acc_facialhair" type="checkbox"/><span style="font-size: 11px;">Facial hair</span>
+                </label>
+              </div>
+            </div>
+            <div style="margin-top: 12px;">
+              <label>Notes</label>
+              <textarea id="pretrip_notes" placeholder="Anything special about today's trip..."></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 12px;">
+          <div class="card-header">
+            <div class="card-title">💤 Health & Day-of Baseline</div>
+          </div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="group">
+                <label>Sleep last night (hours)</label>
+                <input id="pretrip_sleepHours" type="number" min="0" max="24" step="0.5"/>
+              </div>
+              <div class="group">
+                <label>Alertness today</label>
+                <div class="row" style="gap: 8px;">
+                  <span style="font-size: 10px; color: var(--text-muted);">Low</span>
+                  <input id="pretrip_alertness" type="range" min="1" max="5" value="3" style="flex: 1;"/>
+                  <span style="font-size: 10px; color: var(--text-muted);">High</span>
+                  <span class="chip" id="pretrip_alertnessValue">3/5</span>
+                </div>
+              </div>
+              <div class="group" style="justify-content: flex-end;">
+                <label class="row" style="gap: 8px; cursor: pointer;">
+                  <input id="pretrip_caffeineToday" type="checkbox"/>
+                  <span style="font-size: 11px;">Caffeine consumed today</span>
+                </label>
+              </div>
+            </div>
+            <div style="margin-top: 12px;">
+              <label class="row" style="gap: 8px; cursor: pointer;">
+                <input id="pretrip_impairmentCheck" type="checkbox"/>
+                <span style="font-size: 11px;">No impairment (alcohol/drugs/illness) today — I attest I am fit to drive</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row" style="justify-content: flex-end; gap: 8px; margin-top: 16px;">
+          <button class="btn secondary" id="pretripResetBtn">Reset</button>
+          <button class="btn secondary" id="pretripExportBtn">Export JSON</button>
+          <button class="btn primary" id="pretripStartBtn" disabled>Start Session</button>
+        </div>
+        
+        <div style="margin-top: 8px; font-size: 10px; color: var(--text-muted);" id="pretripAutosaveHint">Autosaved locally</div>
+      </div>
+    </div>
+    
+    <!-- PLANNER PANEL - Built directly into unified file for performance -->
+    <div class="tab-panel" id="plannerPanel" data-panel="planner">
+      <div style="display: grid; grid-template-columns: 380px 1fr; grid-template-rows: 1fr; height: 100%; gap: 14px; padding: 14px;">
+        <!-- Planner Sidebar -->
+        <div class="card" style="display: flex; flex-direction: column; overflow: hidden;">
+          <div class="card-header">
+            <div class="card-title">🗺️ Advanced Journey Planner</div>
+          </div>
+          <div class="card-body" style="overflow: auto; flex: 1;">
+            <div class="group" style="margin-bottom: 12px;">
+              <label>Start Location * (search)</label>
+              <div class="search-container">
+                <input id="planner_startInput" type="text" placeholder="Type to search (e.g., Berlin)" autocomplete="off"/>
+                <div class="search-suggestions" id="planner_startSuggestions"></div>
+              </div>
+            </div>
+            <div class="group" style="margin-bottom: 12px;">
+              <label>End Location (leave blank for loop)</label>
+              <div class="search-container">
+                <input id="planner_endInput" type="text" placeholder="Type to search (optional)" autocomplete="off"/>
+                <div class="search-suggestions" id="planner_endSuggestions"></div>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-bottom: 12px;">
+              <div class="group">
+                <label>Date *</label>
+                <input id="planner_dateRange" type="date"/>
+              </div>
+              <div class="group">
+                <label>Start Time *</label>
+                <input id="planner_startTime" type="time" value="09:00"/>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-bottom: 12px;">
+              <div class="group">
+                <label>Duration (hours)</label>
+                <input id="planner_duration" type="number" min="1" max="12" value="4"/>
+              </div>
+              <div class="group">
+                <label>Trucks</label>
+                <select id="planner_truckCount">
+                  <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                </select>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 12px; padding: 10px; background: var(--glass); border-radius: 10px; border: 1px solid var(--panel-border);">
+              <div style="font-weight: 600; font-size: 11px; margin-bottom: 8px;">☀️ Sun & Weather Optimization</div>
+              <label style="display: flex; gap: 6px; cursor: pointer; margin-bottom: 6px; font-size: 11px;">
+                <input id="planner_considerSun" type="checkbox" checked/>
+                <span>Optimize for sun position (frontlit/sidelit)</span>
+              </label>
+              <label style="display: flex; gap: 6px; cursor: pointer; font-size: 11px;">
+                <input id="planner_considerWeather" type="checkbox" checked/>
+                <span>Check weather forecast</span>
+              </label>
+              <div id="planner_sunInfo" style="font-size: 10px; color: var(--text-muted); margin-top: 8px;"></div>
+            </div>
+            
+            <button class="btn primary" style="width: 100%;" id="plannerPlanBtn">🚚 Plan Journey with Euro NCAP Scenarios</button>
+            
+            <div style="margin-top: 16px;">
+              <div class="card-title" style="margin-bottom: 8px;">📊 Coverage KPIs</div>
+              <div class="grid-3" style="gap: 6px;">
+                <div style="background: var(--glass); padding: 8px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                  <div style="font-size: 9px; color: var(--text-muted);">Scenarios</div>
+                  <div style="font-size: 14px; font-weight: 800;" id="planner_kpiScore">–</div>
+                </div>
+                <div style="background: var(--glass); padding: 8px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                  <div style="font-size: 9px; color: var(--text-muted);">Lighting</div>
+                  <div style="font-size: 14px; font-weight: 800;" id="planner_kpiLight">–</div>
+                </div>
+                <div style="background: var(--glass); padding: 8px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                  <div style="font-size: 9px; color: var(--text-muted);">Weather</div>
+                  <div style="font-size: 14px; font-weight: 800;" id="planner_kpiWeather">–</div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-top: 16px;">
+              <div class="card-title" style="margin-bottom: 8px;">📋 Scheduled Scenarios</div>
+              <div id="planner_checklist" style="font-size: 11px; color: var(--text-muted); max-height: 200px; overflow-y: auto;">
+                Plan a journey to see scenarios
+              </div>
+            </div>
+          </div>
+          <div style="padding: 10px; border-top: 1px solid var(--panel-border);">
+            <div class="row" style="gap: 6px;">
+              <button class="btn sm" id="planner_exportJson">💾 Export Plan</button>
+              <button class="btn sm" id="planner_loadPlan">📂 Load</button>
+              <input type="file" id="planner_fileInput" accept=".json" style="display: none;"/>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Planner Map -->
+        <div class="card" style="overflow: hidden;">
+          <div class="card-header">
+            <div class="card-title">Route Map</div>
+            <div class="chip" id="planner_statusChip">Idle</div>
+          </div>
+          <div class="card-body" style="padding: 0; height: calc(100% - 44px);">
+            <div id="plannerMap" style="width: 100%; height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Planning Progress Overlay -->
+      <div id="planner_progressOverlay" style="position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000;">
+        <div class="card" style="width: min(500px, 90%); padding: 20px;">
+          <div class="card-title" id="planner_progressTitle">Planning...</div>
+          <div style="height: 10px; background: var(--glass); border-radius: 999px; overflow: hidden; margin: 12px 0; border: 1px solid var(--panel-border);">
+            <div id="planner_progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--rose-400), var(--rose-600)); transition: width 0.3s;"></div>
+          </div>
+          <div class="row" style="gap: 8px;">
+            <span class="chip" id="planner_progressStep">Starting...</span>
+            <span class="chip" id="planner_progressPct">0%</span>
+          </div>
+          <div id="planner_progressLog" style="max-height: 150px; overflow: auto; font-size: 10px; color: var(--text-muted); margin-top: 10px;"></div>
+          <div style="text-align: right; margin-top: 12px;">
+            <button class="btn danger" id="planner_cancelBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- NAVIGATOR PANEL - Built directly into unified file -->
+    <div class="tab-panel" id="navigatorPanel" data-panel="navigator">
+      <div style="display: grid; grid-template-columns: 1fr 360px; grid-template-rows: 1fr; height: 100%; gap: 10px; padding: 10px;">
+        <!-- Navigator Map -->
+        <div class="card" style="overflow: hidden; position: relative;">
+          <div id="navigatorMap" style="width: 100%; height: 100%;"></div>
+          <div style="position: absolute; top: 10px; left: 10px; z-index: 1000;">
+            <div class="card" style="padding: 10px 14px;">
+              <div style="font-size: 10px; color: var(--text-muted);">Current Position</div>
+              <div style="font-size: 13px; font-weight: 600;" id="nav_position">Waiting for GPS...</div>
+              <div style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Speed</div>
+              <div style="font-size: 13px; font-weight: 600;" id="nav_speed">-- km/h</div>
+            </div>
+          </div>
+          <!-- TTS Announcement Bar -->
+          <div class="tts-bar" id="nav_ttsBar">
+            <div class="instruction" id="nav_ttsInstruction">--</div>
+            <div class="details" id="nav_ttsDetails">--</div>
+          </div>
+        </div>
+        
+        <!-- Navigator Sidebar -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🎯 Current Scenario</div>
+              <span class="chip" id="nav_scenarioTimer">--:--</span>
+            </div>
+            <div class="card-body">
+              <div id="nav_currentScenario" style="text-align: center; padding: 14px; background: var(--glass); border-radius: 10px; border: 1px solid var(--panel-border);">
+                <div style="font-size: 12px; color: var(--text-muted);">No active scenario</div>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Start navigation to begin</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+            <div class="card-header">
+              <div class="card-title">📋 Upcoming Scenarios</div>
+              <div style="display: flex; gap: 4px;">
+                <span class="chip" id="nav_nextScenarioTime" style="font-size: 9px; display: none;">Next: --</span>
+                <span class="chip" id="nav_scenarioCount">0 remaining</span>
+              </div>
+            </div>
+            <div class="card-body" style="overflow: auto; flex: 1;">
+              <div id="nav_upcomingScenarios" style="font-size: 11px; color: var(--text-muted);">
+                Load a plan to see scenarios
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🔊 Audio / TTS</div>
+            </div>
+            <div class="card-body">
+              <div class="row" style="gap: 8px; margin-bottom: 10px;">
+                <label style="font-size: 11px; margin: 0; min-width: 50px;">Volume:</label>
+                <input type="range" id="nav_volume" min="0" max="1" step="0.1" value="1" style="flex: 1;"/>
+                <button class="btn sm" id="nav_muteBtn">🔊</button>
+              </div>
+              <button class="btn sm" id="nav_testTtsBtn" style="width: 100%;">🔈 Test Voice</button>
+            </div>
+          </div>
+          
+          <div class="card" id="nav_manualControlCard" style="display: none;">
+            <div class="card-header">
+              <div class="card-title">🎮 Manual Controls</div>
+              <span class="chip" id="nav_gpsStatusChip" style="font-size: 9px; display: none;">GPS Issues</span>
+            </div>
+            <div class="card-body">
+              <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">Control scenarios manually</div>
+              <div class="row" style="gap: 6px; margin-bottom: 6px;">
+                <button class="btn sm" id="nav_prevScenarioBtn" style="flex: 1;">⏮️ Prev</button>
+                <button class="btn sm primary" id="nav_executeScenarioBtn" style="flex: 1;">▶️ Execute</button>
+                <button class="btn sm" id="nav_nextScenarioBtn" style="flex: 1;">⏭️ Next</button>
+              </div>
+              <div class="row" style="gap: 6px;">
+                <button class="btn sm" id="nav_skipScenarioBtn" style="flex: 1;">⏩ Skip</button>
+                <button class="btn sm" id="nav_redoScenarioBtn" style="flex: 1;">🔄 Redo</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-body">
+              <div class="row" style="gap: 8px;">
+                <button class="btn" id="nav_loadPlanBtn" style="flex: 1;">📂 Load Plan</button>
+                <button class="btn primary" id="nav_startNavBtn" style="flex: 1;" disabled>▶️ Start</button>
+              </div>
+              <div class="row" style="gap: 8px; margin-top: 8px;">
+                <button class="btn danger sm" id="nav_stopNavBtn" style="flex: 1;" disabled>⏹️ Stop</button>
+                <button class="btn sm" id="nav_exportLogBtn" style="flex: 1;">📄 Log</button>
+              </div>
+              <input type="file" id="nav_fileInput" accept=".json" style="display: none;"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Help Modal -->
+<div class="help-modal" id="helpModal">
+  <div class="help-content">
+    <h2>📖 Sentinel User Guide</h2>
+    
+    <h3>Overview</h3>
+    <p>Sentinel is a comprehensive data collection platform for Euro NCAP DSM (Driver Monitoring System) protocol testing. It helps plan and execute truck journeys with precisely scheduled driver distraction scenarios.</p>
+    
+    <h3>1. Pre-Trip Quiz</h3>
+    <ul>
+      <li><strong>Fill in required fields</strong> (driver code, date, time, vehicle, route, weather)</li>
+      <li>Check the <strong>consent checkbox</strong> before starting</li>
+      <li>Data is <strong>auto-saved</strong> to local storage</li>
+    </ul>
+    
+    <h3>2. Journey Planner</h3>
+    <ul>
+      <li><strong>Search for locations</strong> by typing - suggestions appear automatically</li>
+      <li>Set <strong>date and start time</strong> for accurate sun position calculation</li>
+      <li>Enable <strong>sun optimization</strong> to prefer frontlit/sidelit conditions</li>
+      <li>Click <strong>Plan Journey</strong> to generate routes with Euro NCAP scenarios</li>
+      <li><strong>Export the plan</strong> to use in the Navigator</li>
+    </ul>
+    
+    <h3>3. Navigator</h3>
+    <ul>
+      <li><strong>Load a plan</strong> exported from the Planner</li>
+      <li>Click <strong>Start</strong> to begin navigation with GPS</li>
+      <li><strong>TTS announcements</strong> guide the driver:
+        <ul>
+          <li>"Approaching scenario" - ~30 seconds before</li>
+          <li>"Start now" - when scenario begins</li>
+          <li>Clear movement and gaze instructions</li>
+        </ul>
+      </li>
+      <li>The <strong>green bar</strong> shows current instructions</li>
+      <li><strong>Test Voice</strong> to verify TTS is working</li>
+    </ul>
+    
+    <h3>Euro NCAP Scenario Types</h3>
+    <ul>
+      <li><strong>Short Distraction (VATS)</strong>: 10s cumulative within 30s window</li>
+      <li><strong>Long Distraction</strong>: 3-4s continuous look away</li>
+      <li><strong>Movement Types</strong>: Owl (head+eyes), Lizard (eyes only), Body Lean, Tarsier (head only)</li>
+    </ul>
+    
+    <h3>Tips</h3>
+    <ul>
+      <li>Use <strong>Chrome</strong> for best TTS quality</li>
+      <li>Grant <strong>GPS permissions</strong> when prompted</li>
+      <li>Keep screen <strong>active</strong> during navigation</li>
+      <li>Works <strong>offline</strong> after first load</li>
+    </ul>
+    
+    <div style="margin-top: 20px; text-align: center;">
+      <button class="btn primary" id="closeHelpBtn">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== CONFIGURATION CONSTANTS ======
+const CONFIG = {
+  // API URLs
+  NOMINATIM_URL: 'https://nominatim.openstreetmap.org/search',
+  OSRM_URL: 'https://router.project-osrm.org/route/v1/driving',
+  WEATHER_URL: 'https://api.open-meteo.com/v1/forecast',
+  
+  // Search settings
+  SEARCH_SUGGESTION_LIMIT: 5,
+  SEARCH_DEBOUNCE_MS: 300,
+  
+  // Loop route settings (in km)
+  LOOP_MIN_DISTANCE_KM: 30,
+  LOOP_MAX_DISTANCE_KM: 50,
+  
+  // Scenario scheduling
+  SCENARIO_GAP_SECONDS: 180,  // Minimum time between scenarios (3 minutes)
+  MAX_SCENARIOS_PER_ROUTE: 50,  // Increased for long routes with repetition
+  ALLOW_SCENARIO_REPETITION: true,  // Allow scenarios to repeat on long routes
+  SCENARIO_REPETITION_MIN_INTERVAL: 1800,  // Min 30 min between same scenario (seconds)
+  
+  // Fatigue period settings
+  FATIGUE_PERIOD_ENABLED: true,
+  FATIGUE_PERIOD_DURATION: 1800,  // 30 minutes of continuous driving
+  FATIGUE_PERIOD_START_OFFSET: 3600,  // Start fatigue period after 1 hour
+  FATIGUE_PERIOD_COLOR: '#9333ea',  // Purple color for fatigue zones
+  
+  // Navigator proximity thresholds (in meters)
+  PROXIMITY_ANNOUNCE_METERS: 500,  // Announce scenario when within 500m
+  PROXIMITY_START_METERS: 100,     // Start scenario when within 100m
+  PROXIMITY_TOLERANCE: 50,  // Hysteresis for robust entry detection (meters)
+  
+  // TTS settings
+  TTS_RATE: 0.92,
+  TTS_PITCH: 1.05,
+  
+  // GPS reliability
+  GPS_ACCURACY_THRESHOLD: 50,  // Maximum acceptable GPS accuracy in meters
+  GPS_STALE_THRESHOLD: 10000  // Consider GPS stale after 10 seconds
+};
+
+// Euro NCAP Scenarios Database
+const EURO_NCAP_SCENARIOS = [
+  {
+    "id": "SCN-0001",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "4s driver side window, 1s forward road, 4s passenger side window, 1s forward road, repeated three times",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0002",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "4s driver side window, 1s forward road, 4s passenger side window, 1s forward road, repeated twice, 5s driver side window, 5s forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0003",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "4s passenger side window, 1s forward road, 4s passenger side window, 1s forward road, repeated three times",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0004",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "4s passenger side window, 1s forward road, 4s passenger side window, 1s forward road, repeated twice, 5s passenger side window, 5s forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0005",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "4s driver side window, 1s forward road, 4s passenger side window, 1s forward road, repeated three times",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0006",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "4s passenger footwell, 1s forward road, 4s passenger footwell, 1s forward road, repeated three times",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0007",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "4s passenger footwell, 1s forward road, 4s passenger footwell, 1s forward road, repeated twice, 5s passenger side window, 5s forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0008",
+    "distractionType": "short",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "4s driver side mirror, 1s forward road, 4s driver side mirror, 1s forward road, repeated three times",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0009",
+    "distractionType": "short",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "4s driver side mirror, 1s forward road, 4s driver side mirror, 1s forward road, repeated twice, 5s driver side mirror, 5s forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0010",
+    "distractionType": "short",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "4s driver side mirror, 1s forward road, 4s driver side mirror, 1s forward road, repeated three times",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0011",
+    "distractionType": "short",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "4s driver side mirror, 1s forward road, 4s driver side mirror, 1s forward road, repeated twice, 5s driver side mirror, 5s forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0012",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger side window for 3s then forward road",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0013",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger side window for 2s then forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0014",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "driver side mirror for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0015",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "driver side mirror for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0016",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "passenger side mirror for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0017",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "passenger side mirror for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0018",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger face for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0019",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger face for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0020",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "driver side mirror for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0021",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "driver side mirror for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0022",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "passenger side mirror for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0023",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "passenger side mirror for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0024",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "passenger face for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0025",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "passenger face for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0026",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "passenger side for 4s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0027",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "passenger side for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0028",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "tarsier",
+    "description": "looking straight, just head moves left, eyes forward road for 5s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0029",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "tarsier",
+    "description": "looking straight, just head moves right, eyes forward road for 5s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0030",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "In-vehicle infotainment system for 4s then forward road for 2s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0031",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "In-vehicle infotainment system for 2s then forward road for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0032",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "In-vehicle infotainment system for 3s then forward road for 2s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0033",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "In-vehicle infotainment system for 1s then forward road for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0034",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "In-vehicle infotainment system for 5s then forward road for 2s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0035",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "In-vehicle infotainment system for 1s then forward road for 2s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0036",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "glovebox for 5s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0037",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger footwell for 3s then forward road for 3s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0038",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger footwell for 1s then forward road for 3s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0039",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "passenger footwell for 3s then forward road for 3s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0040",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "passenger footwell for 1s then forward road for 3s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0041",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "passenger footwell for 5s then forward road for 3s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0042",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "body lean",
+    "description": "passenger footwell for 2s then forward road for 3s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0043",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger face for 3s then forward road for 3s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0044",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "passenger face for 1s then forward road for 3s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0045",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "passenger face for 3s then forward road for 3s",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0046",
+    "distractionType": "long",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "passenger face for 1s then forward road for 3s",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0047",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "touching instrument cluster for 3s then forward road",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0048",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "owl",
+    "description": "touching instrument cluster for 1s then forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0049",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "watching instrument cluster for 3s then forward road",
+    "expectedResult": "warning",
+    "testType": "video"
+  },
+  {
+    "id": "SCN-0050",
+    "distractionType": "long",
+    "distractionScenario": "driving task",
+    "movementType": "lizard",
+    "description": "watching instrument cluster for 2s then forward road",
+    "expectedResult": "nothing",
+    "testType": "video"
+  }
+];
+
+// DDA (Driver Distraction Alert) Base Scenarios from dda_base.pdf
+// Additional real-world distraction scenarios including phone use
+const DDA_SCENARIOS = [
+  {
+    "id": "DDA-001",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "Passenger side window for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Passenger side window"
+  },
+  {
+    "id": "DDA-002",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "Passenger footwell for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Passenger footwell"
+  },
+  {
+    "id": "DDA-003",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "owl",
+    "description": "IVIS for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "In-vehicle infotainment system"
+  },
+  {
+    "id": "DDA-004",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "Driver side window for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Driver side window"
+  },
+  {
+    "id": "DDA-005",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "Passenger footwell for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Passenger footwell"
+  },
+  {
+    "id": "DDA-006",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "IVIS for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "In-vehicle infotainment system"
+  },
+  {
+    "id": "DDA-007",
+    "distractionType": "short",
+    "distractionScenario": "away from forward road",
+    "movementType": "lizard",
+    "description": "Multi-location for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Multiple locations"
+  },
+  {
+    "id": "DDA-008",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "owl",
+    "description": "Phone on driver side knee for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - driver knee (driver side)"
+  },
+  {
+    "id": "DDA-009",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "owl",
+    "description": "Phone on passenger side knee for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - driver knee (passenger side)"
+  },
+  {
+    "id": "DDA-010",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "owl",
+    "description": "Phone in lap for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - driver lap"
+  },
+  {
+    "id": "DDA-011",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "owl",
+    "description": "Phone dashboard-mounted for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - dashboard mounted"
+  },
+  {
+    "id": "DDA-012",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "owl",
+    "description": "Phone OEM-specific holding for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - OEM-specific position"
+  },
+  {
+    "id": "DDA-013",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone on driver side knee for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - driver knee (driver side)"
+  },
+  {
+    "id": "DDA-014",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone on passenger side knee for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - driver knee (passenger side)"
+  },
+  {
+    "id": "DDA-015",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone in lap for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - driver lap"
+  },
+  {
+    "id": "DDA-016",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone dashboard-mounted for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - dashboard mounted"
+  },
+  {
+    "id": "DDA-017",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone OEM-specific mounted for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - OEM-specific position"
+  },
+  {
+    "id": "DDA-018",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone at wheel 9-11 mounted for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - wheel 9-11 position"
+  },
+  {
+    "id": "DDA-019",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone at wheel centre for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - wheel centre"
+  },
+  {
+    "id": "DDA-020",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone within windscreen for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - within windscreen"
+  },
+  {
+    "id": "DDA-021",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone within forward windscreen for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - forward windscreen"
+  },
+  {
+    "id": "DDA-022",
+    "distractionType": "short",
+    "distractionScenario": "phone use",
+    "movementType": "lizard",
+    "description": "Phone within instrument cluster for 2s, repeated six times within 30s",
+    "expectedResult": "warning",
+    "testType": "real_world",
+    "gazeTarget": "Phone - instrument cluster view"
+  }
+];
+
+// Combine all scenarios for selection
+const ALL_SCENARIOS = [...EURO_NCAP_SCENARIOS, ...DDA_SCENARIOS];
+
+// DOM helpers - robust with null checks
+const sel = (s, c=document) => c.querySelector(s);
+const selAll = (s, c=document) => Array.from(c.querySelectorAll(s));
+
+// Safe element getter - returns null instead of throwing
+function safeEl(id) {
+  return document.getElementById(id);
+}
+
+// Safe event listener - only adds if element exists
+function safeOn(id, event, handler) {
+  const el = typeof id === 'string' ? safeEl(id) : id;
+  if (el && typeof el.addEventListener === 'function') {
+    el.addEventListener(event, handler);
+    return true;
+  }
+  return false;
+}
+
+// Clear map route/marker layers (shared utility)
+function clearMapLayers(map) {
+  if (!map || typeof L === 'undefined') return;
+  map.eachLayer(l => { 
+    if (l instanceof L.Polyline || l instanceof L.Marker) map.removeLayer(l); 
+  });
+}
+
+// Toast notifications
+function showToast(msg, type='info') {
+  const c = sel('#toastContainer');
+  if (!c) return;
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// Offline detection
+function updateOnlineStatus() {
+  const banner = sel('#offlineBanner');
+  const chip = sel('#connectionChip');
+  if (navigator.onLine) {
+    if (banner) banner.classList.remove('show');
+    if (chip) { chip.textContent = '🌐 Online'; chip.className = 'chip active'; }
+  } else {
+    if (banner) banner.classList.add('show');
+    if (chip) { chip.textContent = '📴 Offline'; chip.className = 'chip warn'; }
+  }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// Theme toggle
+const savedTheme = localStorage.getItem('sentinel-theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+const themeToggle = sel('#themeToggle');
+if (themeToggle) {
+  themeToggle.checked = savedTheme === 'dark';
+  themeToggle.addEventListener('change', e => {
+    const theme = e.target.checked ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sentinel-theme', theme);
+  });
+}
+
+// Tab navigation
+selAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    selAll('.nav-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    selAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const panel = sel('[data-panel="' + target + '"]');
+    if (panel) panel.classList.add('active');
+    
+    // Initialize maps when their panels become active
+    if (target === 'planner' && !plannerMapInitialized) {
+      initPlannerMap();
+    }
+    if (target === 'navigator' && !navigatorMapInitialized) {
+      initNavigatorMap();
+    }
+  });
+});
+
+// GPS status updates
+let geoWatchId = null;
+function startGPSWatch() {
+  const gpsChip = sel('#gpsChip');
+  if (!navigator.geolocation) {
+    if (gpsChip) { gpsChip.textContent = '📍 No GPS'; gpsChip.className = 'chip warn'; }
+    return;
+  }
+  geoWatchId = navigator.geolocation.watchPosition(
+    pos => {
+      if (gpsChip) { gpsChip.textContent = '📍 ±' + Math.round(pos.coords.accuracy) + 'm'; gpsChip.className = 'chip active'; }
+    },
+    err => {
+      const msgs = {1: 'Denied', 2: 'Unavailable', 3: 'Timeout'};
+      if (gpsChip) { gpsChip.textContent = '📍 ' + (msgs[err.code] || 'Error'); gpsChip.className = 'chip warn'; }
+    },
+    {enableHighAccuracy: true, timeout: 30000, maximumAge: 5000}
+  );
+}
+
+// Session timer
+let sessionStart = null;
+function updateSessionTimer() {
+  const chip = sel('#sessionChip');
+  if (!chip) return;
+  if (!sessionStart) { chip.textContent = '⏱️ --:--:--'; return; }
+  const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+  const h = Math.floor(elapsed / 3600);
+  const m = Math.floor((elapsed % 3600) / 60);
+  const s = elapsed % 60;
+  chip.textContent = '⏱️ ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+// ====== PRE-TRIP QUIZ MODULE ======
+const PretripModule = {
+  storeKey: 'sentinel-pretrip-form',
+  form: null,
+  
+  defaultForm: {
+    version: 1,
+    driverCode: '',
+    date: new Date().toISOString().slice(0, 10),
+    startTime: new Date().toTimeString().slice(0, 5),
+    vehicleId: '',
+    rigId: '',
+    routeTemplate: '',
+    timeOfDay: '',
+    weather: '',
+    accessories: { glasses: false, sunglasses: false, hat: false, mask: false, longHairOverForehead: false, facialHair: false },
+    sleepHours: '',
+    alertness: 3,
+    caffeineToday: false,
+    impairmentCheck: false,
+    notes: '',
+    consent: false,
+  },
+  
+  load() {
+    try {
+      const raw = localStorage.getItem(this.storeKey);
+      this.form = raw ? Object.assign({}, this.defaultForm, JSON.parse(raw)) : JSON.parse(JSON.stringify(this.defaultForm));
+    } catch(e) {
+      this.form = JSON.parse(JSON.stringify(this.defaultForm));
+    }
+    return this.form;
+  },
+  
+  save() {
+    try {
+      localStorage.setItem(this.storeKey, JSON.stringify(this.form));
+      const hint = safeEl('pretripAutosaveHint');
+      if (hint) hint.textContent = 'Autosaved locally • ' + new Date().toLocaleString();
+    } catch(e) { console.warn('Failed to save pretrip form', e); }
+  },
+  
+  journeyId() {
+    const d = (this.form.date || '').replaceAll('-', '');
+    const driver = this.form.driverCode || 'DRV';
+    const route = this.form.routeTemplate || 'ROUTE';
+    const vehicle = this.form.vehicleId || 'VEH';
+    return `${d}-${vehicle}-${route}-${driver}-01`;
+  },
+  
+  validate() {
+    const f = this.form;
+    const ok = !!f.driverCode && !!f.date && !!f.startTime && !!f.vehicleId && 
+               !!f.routeTemplate && !!f.timeOfDay && !!f.weather && !!f.consent;
+    const btn = safeEl('pretripStartBtn');
+    if (btn) btn.disabled = !ok;
+    const pill = safeEl('pretripStatusPill');
+    if (pill) {
+      if (ok) { pill.classList.remove('warn'); pill.classList.add('ok'); pill.textContent = 'Ready'; }
+      else { pill.classList.add('warn'); pill.classList.remove('ok'); pill.textContent = 'Missing required fields'; }
+    }
+    return ok;
+  },
+  
+  render() {
+    const jid = safeEl('pretripJourneyId');
+    if (jid) jid.textContent = 'Journey ID: ' + this.journeyId();
+    this.validate();
+  },
+  
+  init() {
+    this.load();
+    
+    // Set initial values
+    const fields = ['driverCode', 'date', 'startTime', 'vehicleId', 'rigId', 'routeTemplate', 'timeOfDay', 'weather', 'notes', 'sleepHours', 'alertness', 'caffeineToday', 'impairmentCheck', 'consent'];
+    fields.forEach(id => {
+      const el = safeEl('pretrip_' + id);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = !!this.form[id];
+      else el.value = this.form[id] ?? '';
+    });
+    
+    // Accessories
+    ['glasses', 'sunglasses', 'hat', 'mask', 'longhair', 'facialhair'].forEach(acc => {
+      const el = safeEl('pretrip_acc_' + acc);
+      if (el) {
+        const keyMap = { longhair: 'longHairOverForehead', facialhair: 'facialHair' };
+        const key = keyMap[acc] || acc;
+        el.checked = !!this.form.accessories[key];
+      }
+    });
+    
+    // Alertness display
+    const alertEl = safeEl('pretrip_alertness');
+    const alertValEl = safeEl('pretrip_alertnessValue');
+    if (alertEl && alertValEl) alertValEl.textContent = this.form.alertness + '/5';
+    
+    // Bind change events
+    fields.forEach(id => {
+      const el = safeEl('pretrip_' + id);
+      if (!el) return;
+      const handler = () => {
+        if (el.type === 'checkbox') this.form[id] = el.checked;
+        else if (id === 'alertness') this.form[id] = Number(el.value);
+        else this.form[id] = el.value;
+        this.save();
+        this.render();
+        if (id === 'alertness' && alertValEl) alertValEl.textContent = el.value + '/5';
+      };
+      safeOn(el, 'input', handler);
+      safeOn(el, 'change', handler);
+    });
+    
+    // Accessories change events
+    ['glasses', 'sunglasses', 'hat', 'mask', 'longhair', 'facialhair'].forEach(acc => {
+      const el = safeEl('pretrip_acc_' + acc);
+      if (!el) return;
+      safeOn(el, 'change', () => {
+        this.form.accessories = {
+          glasses: safeEl('pretrip_acc_glasses')?.checked || false,
+          sunglasses: safeEl('pretrip_acc_sunglasses')?.checked || false,
+          hat: safeEl('pretrip_acc_hat')?.checked || false,
+          mask: safeEl('pretrip_acc_mask')?.checked || false,
+          longHairOverForehead: safeEl('pretrip_acc_longhair')?.checked || false,
+          facialHair: safeEl('pretrip_acc_facialhair')?.checked || false,
+        };
+        this.save();
+      });
+    });
+    
+    // Buttons
+    safeOn('pretripResetBtn', 'click', () => {
+      this.form = JSON.parse(JSON.stringify(this.defaultForm));
+      this.init();
+      showToast('Form reset', 'info');
+    });
+    
+    safeOn('pretripExportBtn', 'click', () => {
+      const data = JSON.stringify(Object.assign({ journeyId: this.journeyId() }, this.form), null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = this.journeyId() + '-pretrip.json';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      showToast('Exported JSON', 'success');
+    });
+    
+    safeOn('pretripStartBtn', 'click', () => {
+      if (this.validate()) {
+        sessionStart = Date.now();
+        showToast('Session started: ' + this.journeyId(), 'success');
+      }
+    });
+    
+    this.render();
+  }
+};
+
+// ====== PLANNER MODULE ======
+let plannerMap = null;
+let plannerMapInitialized = false;
+let plannerAbortController = null;
+let plannerLayers = [];
+let startLocation = null;
+let endLocation = null;
+
+function initPlannerMap() {
+  if (plannerMapInitialized) return;
+  const container = safeEl('plannerMap');
+  if (!container || typeof L === 'undefined') return;
+  
+  plannerMap = L.map('plannerMap', { zoomControl: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(plannerMap);
+  plannerMap.setView([51.5, 0], 4);
+  plannerMapInitialized = true;
+}
+
+// Search debounce helper
+let searchDebounceTimer = null;
+function debounce(fn, ms) {
+  return function(...args) {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+const PlannerModule = {
+  plan: null,
+  
+  // Enhanced geocode with multiple results for suggestions
+  async geocodeSearch(q) {
+    if (!q || q.length < 2) return [];
+    try {
+      const url = new URL(CONFIG.NOMINATIM_URL);
+      url.searchParams.set('q', q);
+      url.searchParams.set('format', 'jsonv2');
+      url.searchParams.set('limit', CONFIG.SEARCH_SUGGESTION_LIMIT.toString());
+      url.searchParams.set('addressdetails', '1');
+      const res = await fetch(url, { signal: plannerAbortController?.signal });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.map(d => ({
+        lat: +d.lat,
+        lon: +d.lon,
+        name: d.display_name,
+        type: d.type
+      }));
+    } catch(e) {
+      console.warn('Geocode search failed', e);
+      return [];
+    }
+  },
+  
+  async geocode(q) {
+    if (!q || q.length < 3) return null;
+    try {
+      const url = new URL(CONFIG.NOMINATIM_URL);
+      url.searchParams.set('q', q);
+      url.searchParams.set('format', 'jsonv2');
+      url.searchParams.set('limit', '1');
+      const res = await fetch(url, { signal: plannerAbortController?.signal });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data[0] ? { lat: +data[0].lat, lon: +data[0].lon, name: data[0].display_name } : null;
+    } catch(e) {
+      if (e.name === 'AbortError') throw e;
+      console.warn('Geocode failed', e);
+      return null;
+    }
+  },
+  
+  // Setup search suggestions
+  setupSearch(inputId, suggestionsId, setter) {
+    const input = safeEl(inputId);
+    const suggestions = safeEl(suggestionsId);
+    if (!input || !suggestions) return;
+    
+    const showSuggestions = async () => {
+      const query = input.value.trim();
+      if (query.length < 2) {
+        suggestions.classList.remove('show');
+        return;
+      }
+      
+      const results = await this.geocodeSearch(query);
+      if (results.length === 0) {
+        suggestions.classList.remove('show');
+        return;
+      }
+      
+      suggestions.innerHTML = results.map((r, i) => `
+        <div class="search-suggestion" data-idx="${i}">
+          <div style="font-weight: 600; font-size: 11px;">${r.name.split(',')[0]}</div>
+          <div style="font-size: 10px; color: var(--text-muted);">${r.name}</div>
+        </div>
+      `).join('');
+      
+      suggestions.querySelectorAll('.search-suggestion').forEach((el, i) => {
+        el.addEventListener('click', () => {
+          const loc = results[i];
+          input.value = loc.name.split(',')[0];
+          setter(loc);
+          suggestions.classList.remove('show');
+        });
+      });
+      
+      suggestions.classList.add('show');
+    };
+    
+    input.addEventListener('input', debounce(showSuggestions, CONFIG.SEARCH_DEBOUNCE_MS));
+    input.addEventListener('focus', () => {
+      if (input.value.length >= 2) showSuggestions();
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => suggestions.classList.remove('show'), 200);
+    });
+  },
+  
+  async fetchRoute(start, end) {
+    const url = `${CONFIG.OSRM_URL}/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
+    const res = await fetch(url, { signal: plannerAbortController?.signal });
+    if (!res.ok) throw new Error('Route fetch failed');
+    const data = await res.json();
+    if (!data.routes?.length) throw new Error('No route found');
+    return data.routes[0];
+  },
+  
+  async fetchWeather(lat, lon, date) {
+    try {
+      const url = new URL(CONFIG.WEATHER_URL);
+      url.searchParams.set('latitude', lat);
+      url.searchParams.set('longitude', lon);
+      url.searchParams.set('hourly', 'weathercode,cloudcover,visibility');
+      url.searchParams.set('start_date', date);
+      url.searchParams.set('end_date', date);
+      const res = await fetch(url, { signal: plannerAbortController?.signal });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch(e) {
+      console.warn('Weather fetch failed', e);
+      return null;
+    }
+  },
+  
+  // Calculate sun position for a given time and location
+  getSunPosition(lat, lon, dateTime) {
+    if (typeof SunCalc === 'undefined') return { altitude: 30, azimuth: 180, phase: 'Day' };
+    
+    const pos = SunCalc.getPosition(dateTime, lat, lon);
+    const altDeg = pos.altitude * 180 / Math.PI;
+    const azDeg = (pos.azimuth * 180 / Math.PI + 180) % 360;
+    
+    let phase = 'Night';
+    if (altDeg >= 6) phase = 'Day';
+    else if (altDeg >= -6) phase = 'Twilight';
+    
+    return { altitude: altDeg, azimuth: azDeg, phase };
+  },
+  
+  // Determine lighting condition relative to driving direction
+  getLightingCondition(sunAzimuth, drivingBearing) {
+    const diff = Math.abs(((drivingBearing - sunAzimuth + 540) % 360) - 180);
+    if (diff <= 45) return 'Frontlit';
+    if (diff >= 135) return 'Backlit';
+    return 'Sidelit';
+  },
+  
+  updateProgress(pct, step) {
+    const bar = safeEl('planner_progressBar');
+    const pctEl = safeEl('planner_progressPct');
+    const stepEl = safeEl('planner_progressStep');
+    const logEl = safeEl('planner_progressLog');
+    
+    if (bar) bar.style.width = Math.min(100, pct) + '%';
+    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+    if (stepEl) stepEl.textContent = step;
+    if (logEl) {
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${step}`;
+      line.style.borderBottom = '1px dashed var(--panel-border)';
+      line.style.padding = '2px 0';
+      logEl.prepend(line);
+    }
+  },
+  
+  showProgress(show) {
+    const overlay = safeEl('planner_progressOverlay');
+    if (overlay) overlay.style.display = show ? 'flex' : 'none';
+    if (show) {
+      const log = safeEl('planner_progressLog');
+      if (log) log.innerHTML = '';
+    }
+  },
+  
+  async planJourney() {
+    plannerAbortController = new AbortController();
+    this.showProgress(true);
+    
+    try {
+      this.updateProgress(5, 'Validating inputs...');
+      
+      const startInput = safeEl('planner_startInput')?.value?.trim();
+      const dateInput = safeEl('planner_dateRange')?.value?.trim();
+      const startTimeInput = safeEl('planner_startTime')?.value || '09:00';
+      const durationHours = parseInt(safeEl('planner_duration')?.value) || 4;
+      const considerSun = safeEl('planner_considerSun')?.checked ?? true;
+      const considerWeather = safeEl('planner_considerWeather')?.checked ?? true;
+      
+      if (!startInput && !startLocation) {
+        showToast('Please enter a start location', 'error');
+        this.showProgress(false);
+        return;
+      }
+      
+      if (!dateInput) {
+        showToast('Please select a date', 'error');
+        this.showProgress(false);
+        return;
+      }
+      
+      this.updateProgress(15, 'Geocoding start location...');
+      const start = startLocation || await this.geocode(startInput);
+      if (!start) {
+        showToast('Could not find start location', 'error');
+        this.showProgress(false);
+        return;
+      }
+      
+      this.updateProgress(25, 'Setting up end location...');
+      let end = endLocation;
+      const endInput = safeEl('planner_endInput')?.value?.trim();
+      if (!end && endInput) {
+        end = await this.geocode(endInput);
+      }
+      if (!end) {
+        // Generate loop endpoint using configured distance range
+        const brg = Math.random() * 360;
+        const R = 6371; // Earth radius in km
+        const distRange = CONFIG.LOOP_MAX_DISTANCE_KM - CONFIG.LOOP_MIN_DISTANCE_KM;
+        const distKm = CONFIG.LOOP_MIN_DISTANCE_KM + Math.random() * distRange;
+        const d = distKm / R;
+        const lat1 = start.lat * Math.PI / 180;
+        const lon1 = start.lon * Math.PI / 180;
+        const lat2 = Math.asin(Math.sin(lat1) * Math.cos(d) + Math.cos(lat1) * Math.sin(d) * Math.cos(brg * Math.PI / 180));
+        const lon2 = lon1 + Math.atan2(Math.sin(brg * Math.PI / 180) * Math.sin(d) * Math.cos(lat1), Math.cos(d) - Math.sin(lat1) * Math.sin(lat2));
+        end = { lat: lat2 * 180 / Math.PI, lon: lon2 * 180 / Math.PI, name: 'Loop endpoint (~' + Math.round(distKm) + 'km)' };
+        this.updateProgress(30, 'Generated loop endpoint');
+      }
+      
+      // Calculate start datetime
+      const [hours, mins] = startTimeInput.split(':').map(Number);
+      const startDateTime = new Date(dateInput + 'T' + startTimeInput + ':00');
+      
+      this.updateProgress(35, 'Calculating sun position...');
+      const sunPos = this.getSunPosition(start.lat, start.lon, startDateTime);
+      const sunInfo = safeEl('planner_sunInfo');
+      if (sunInfo) {
+        sunInfo.innerHTML = `☀️ Sun at ${startTimeInput}: Alt ${sunPos.altitude.toFixed(1)}°, Az ${sunPos.azimuth.toFixed(0)}° (${sunPos.phase})`;
+      }
+      
+      this.updateProgress(40, 'Fetching route from OSRM...');
+      const route = await this.fetchRoute(start, end);
+      
+      // Fetch weather if enabled
+      let weather = null;
+      if (considerWeather) {
+        this.updateProgress(50, 'Fetching weather forecast...');
+        weather = await this.fetchWeather(start.lat, start.lon, dateInput);
+      }
+      
+      this.updateProgress(60, 'Processing route segments...');
+      const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+      const routeDuration = route.duration || durationHours * 3600;
+      
+      // Calculate segments with timing and lighting
+      this.updateProgress(70, 'Analyzing lighting conditions...');
+      const segments = this.analyzeSegments(coords, startDateTime, routeDuration, considerSun);
+      
+      // Schedule Euro NCAP scenarios
+      this.updateProgress(80, 'Scheduling Euro NCAP scenarios...');
+      const scenarios = this.scheduleEuroNcapScenarios(segments, startDateTime, routeDuration, sunPos);
+      
+      // Update map
+      this.updateProgress(90, 'Rendering map...');
+      if (plannerMap) {
+        plannerLayers.forEach(l => plannerMap.removeLayer(l));
+        plannerLayers = [];
+        
+        // Draw route with color coding for lighting
+        const dayCoords = [], twilightCoords = [], nightCoords = [];
+        segments.forEach(s => {
+          if (s.phase === 'Day') dayCoords.push(s.coords);
+          else if (s.phase === 'Twilight') twilightCoords.push(s.coords);
+          else nightCoords.push(s.coords);
+        });
+        
+        if (dayCoords.length) {
+          const l = L.polyline(dayCoords, { color: '#22c55e', weight: 5, opacity: 0.8 }).addTo(plannerMap);
+          plannerLayers.push(l);
+        }
+        if (twilightCoords.length) {
+          const l = L.polyline(twilightCoords, { color: '#f59e0b', weight: 5, opacity: 0.8 }).addTo(plannerMap);
+          plannerLayers.push(l);
+        }
+        if (nightCoords.length) {
+          const l = L.polyline(nightCoords, { color: '#3b82f6', weight: 5, opacity: 0.8 }).addTo(plannerMap);
+          plannerLayers.push(l);
+        }
+        
+        // Add scenario markers with special styling for fatigue periods
+        scenarios.forEach((s, i) => {
+          if (s.coords) {
+            if (s.isFatiguePeriod) {
+              // Fatigue period marker - purple with 'F' indicator
+              const icon = L.divIcon({
+                className: 'fatigue-marker',
+                html: `<div style="background: ${CONFIG.FATIGUE_PERIOD_COLOR}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; border: 3px solid white; box-shadow: 0 3px 8px rgba(147,51,234,0.5);">F</div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+              });
+              const m = L.marker(s.coords, { icon }).bindPopup(`<strong>🧘 ${s.type}</strong><br>Duration: ${Math.round(s.duration / 60)} min<br>No scenarios during this period<br>Observe natural fatigue behavior`).addTo(plannerMap);
+              plannerLayers.push(m);
+            } else {
+              // Regular scenario marker
+              const icon = L.divIcon({
+                className: 'scenario-marker',
+                html: `<div style="background: #e11d48; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">${i + 1}</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+              });
+              const m = L.marker(s.coords, { icon }).bindPopup(`<strong>${s.type}</strong><br>${s.movement || ''}<br>${s.gaze || ''}`).addTo(plannerMap);
+              plannerLayers.push(m);
+            }
+          }
+        });
+        
+        const startMarker = L.marker([start.lat, start.lon]).addTo(plannerMap).bindPopup('Start: ' + start.name);
+        const endMarker = L.marker([end.lat, end.lon]).addTo(plannerMap).bindPopup('End: ' + end.name);
+        plannerLayers.push(startMarker, endMarker);
+        
+        plannerMap.fitBounds(L.latLngBounds(coords).pad(0.1));
+      }
+      
+      // Update KPIs
+      this.updateProgress(95, 'Calculating coverage...');
+      const kpiScore = safeEl('planner_kpiScore');
+      const kpiLight = safeEl('planner_kpiLight');
+      const kpiWeather = safeEl('planner_kpiWeather');
+      
+      if (kpiScore) kpiScore.textContent = scenarios.length.toString();
+      
+      // Calculate lighting distribution
+      const dayPct = Math.round((segments.filter(s => s.phase === 'Day').length / segments.length) * 100);
+      if (kpiLight) kpiLight.textContent = `D ${dayPct}%`;
+      
+      // Weather display
+      if (kpiWeather) {
+        if (weather?.hourly?.weathercode) {
+          const hourIndex = startDateTime.getHours();
+          const code = weather.hourly.weathercode[hourIndex] || 0;
+          kpiWeather.textContent = code === 0 ? 'Clear' : code < 50 ? 'Cloudy' : 'Rain';
+        } else {
+          kpiWeather.textContent = 'N/A';
+        }
+      }
+      
+      // Update checklist with scenarios
+      const checklist = safeEl('planner_checklist');
+      if (checklist) {
+        checklist.innerHTML = scenarios.map((s, i) => {
+          if (s.isFatiguePeriod) {
+            return `
+              <div class="scenario-card" style="border-left: 4px solid ${CONFIG.FATIGUE_PERIOD_COLOR}; background: rgba(147,51,234,0.05);">
+                <div class="type" style="color: ${CONFIG.FATIGUE_PERIOD_COLOR};">🧘 ${s.type}</div>
+                <div class="movement" style="font-style: italic;">Continuous observation - No scenario interruptions</div>
+                <div class="timing">⏱️ ${s.timeStr} | Duration: ${Math.round(s.duration / 60)} min</div>
+              </div>
+            `;
+          }
+          return `
+            <div class="scenario-card">
+              <div class="type">${i + 1}. ${s.type}</div>
+              <div class="movement">${s.movement ? 'Movement: ' + s.movement : ''} ${s.gaze ? '• Gaze: ' + s.gaze : ''}</div>
+              <div class="timing">⏱️ ${s.timeStr} | ${s.lighting || 'Day'}</div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // Update status
+      const status = safeEl('planner_statusChip');
+      if (status) { status.textContent = 'Planned ✓'; status.className = 'chip ok'; }
+      
+      // Store the plan
+      this.plan = {
+        start, end, route, coords, segments, scenarios,
+        startDateTime: startDateTime.toISOString(),
+        routeDuration,
+        sunPosition: sunPos,
+        weather,
+        created: new Date().toISOString()
+      };
+      
+      this.updateProgress(100, 'Done!');
+      showToast(`Journey planned: ${scenarios.length} scenarios scheduled`, 'success');
+      
+      setTimeout(() => this.showProgress(false), 500);
+    } catch(e) {
+      if (e.name === 'AbortError') {
+        showToast('Planning cancelled', 'info');
+      } else {
+        console.error('Planning failed', e);
+        showToast('Planning failed: ' + e.message, 'error');
+      }
+      this.showProgress(false);
+    }
+  },
+  
+  analyzeSegments(coords, startDateTime, duration, considerSun) {
+    const segments = [];
+    const segmentCount = Math.min(coords.length - 1, 100);
+    const timePerSegment = duration / segmentCount;
+    
+    for (let i = 0; i < segmentCount; i++) {
+      const idx = Math.floor((i / segmentCount) * (coords.length - 1));
+      const segCoords = coords[idx];
+      const segTime = new Date(startDateTime.getTime() + i * timePerSegment * 1000);
+      
+      // Calculate bearing between this point and next
+      let bearing = 0;
+      if (idx < coords.length - 1) {
+        const lat1 = coords[idx][0] * Math.PI / 180;
+        const lon1 = coords[idx][1] * Math.PI / 180;
+        const lat2 = coords[idx + 1][0] * Math.PI / 180;
+        const lon2 = coords[idx + 1][1] * Math.PI / 180;
+        const y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+        bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+      }
+      
+      const sunPos = considerSun ? this.getSunPosition(segCoords[0], segCoords[1], segTime) : { phase: 'Day', azimuth: 180 };
+      const lighting = considerSun ? this.getLightingCondition(sunPos.azimuth, bearing) : 'Sidelit';
+      
+      segments.push({
+        idx: i,
+        coords: segCoords,
+        time: segTime,
+        bearing,
+        phase: sunPos.phase,
+        lighting,
+        sunAltitude: sunPos.altitude
+      });
+    }
+    
+    return segments;
+  },
+  
+  scheduleEuroNcapScenarios(segments, startDateTime, duration, sunPos) {
+    const scenarios = [];
+    const fatiguePeriods = [];
+    let lastScenarioTime = 0;
+    
+    // Combine Euro NCAP and DDA scenarios, filter for warning results
+    const availableScenarios = ALL_SCENARIOS.filter(s => s.expectedResult === 'warning');
+    
+    // Track which specific scenarios have been used and when
+    const scenarioUsageMap = new Map(); // scenarioId -> last time used
+    
+    // Calculate fatigue period(s) if enabled
+    if (CONFIG.FATIGUE_PERIOD_ENABLED && duration > CONFIG.FATIGUE_PERIOD_START_OFFSET) {
+      // Place fatigue period after initial scenarios
+      const fatigueStart = CONFIG.FATIGUE_PERIOD_START_OFFSET;
+      const fatigueEnd = fatigueStart + CONFIG.FATIGUE_PERIOD_DURATION;
+      
+      // Only add if within route duration
+      if (fatigueEnd <= duration) {
+        fatiguePeriods.push({
+          start: fatigueStart,
+          end: fatigueEnd,
+          type: 'fatigue_observation'
+        });
+        
+        // Add additional fatigue periods for very long routes (every 2 hours after first)
+        for (let offset = fatigueStart + 7200; offset + CONFIG.FATIGUE_PERIOD_DURATION <= duration; offset += 7200) {
+          fatiguePeriods.push({
+            start: offset,
+            end: offset + CONFIG.FATIGUE_PERIOD_DURATION,
+            type: 'fatigue_observation'
+          });
+        }
+      }
+    }
+    
+    // Helper: check if time is in a fatigue period
+    const isInFatiguePeriod = (time) => {
+      return fatiguePeriods.some(fp => time >= fp.start && time <= fp.end);
+    };
+    
+    // Schedule scenarios throughout the route
+    let scenarioIndex = 0;
+    
+    for (let i = 0; i < segments.length && scenarios.length < CONFIG.MAX_SCENARIOS_PER_ROUTE; i++) {
+      const seg = segments[i];
+      const timeInRoute = (seg.time - startDateTime) / 1000;
+      
+      // Skip if in fatigue period (no interruption for continuous observation)
+      if (isInFatiguePeriod(timeInRoute)) continue;
+      
+      // Skip if too soon after last scenario (use configured gap)
+      if (timeInRoute - lastScenarioTime < CONFIG.SCENARIO_GAP_SECONDS) continue;
+      
+      // Skip backlit conditions if possible
+      if (seg.lighting === 'Backlit' && i < segments.length - 5) continue;
+      
+      // Select a scenario
+      let euroScenario = null;
+      let attempts = 0;
+      const maxAttempts = availableScenarios.length;
+      
+      // Try to find a scenario that respects repetition interval
+      while (!euroScenario && attempts < maxAttempts) {
+        const candidate = availableScenarios[scenarioIndex % availableScenarios.length];
+        const lastUsed = scenarioUsageMap.get(candidate.id);
+        
+        // Allow if never used or enough time has passed since last use
+        if (!lastUsed || (timeInRoute - lastUsed >= CONFIG.SCENARIO_REPETITION_MIN_INTERVAL)) {
+          euroScenario = candidate;
+          scenarioUsageMap.set(candidate.id, timeInRoute);
+        } else if (!CONFIG.ALLOW_SCENARIO_REPETITION) {
+          // If repetition disabled and scenario used, skip it
+          scenarioIndex++;
+          attempts++;
+        } else {
+          // Repetition allowed but interval not met, try next
+          scenarioIndex++;
+          attempts++;
+        }
+      }
+      
+      if (!euroScenario) {
+        scenarioIndex++;
+        continue;
+      }
+      
+      // Create formatted scenario with enhanced description
+      const scenario = {
+        id: `SCN-${String(scenarios.length + 1).padStart(3, '0')}`,
+        type: euroScenario.distractionType === 'short' ? 'VATS' : 'Long Distraction',
+        movement: euroScenario.movementType.charAt(0).toUpperCase() + euroScenario.movementType.slice(1),
+        gaze: euroScenario.gazeTarget || euroScenario.distractionScenario,
+        description: euroScenario.description,
+        coords: seg.coords,
+        time: seg.time,
+        timeStr: seg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timeInRoute,
+        lighting: seg.lighting,
+        phase: seg.phase,
+        duration: euroScenario.distractionType === 'short' ? 30 : 4,
+        sourceId: euroScenario.id,
+        scenarioType: euroScenario.testType || 'video'
+      };
+      
+      scenarios.push(scenario);
+      lastScenarioTime = timeInRoute;
+      scenarioIndex++;
+    }
+    
+    // Add fatigue periods to scenarios array for visualization
+    fatiguePeriods.forEach((fp, idx) => {
+      const seg = segments.find(s => Math.abs((s.time - startDateTime) / 1000 - fp.start) < 60);
+      if (seg) {
+        scenarios.push({
+          id: `FATIGUE-${idx + 1}`,
+          type: 'Fatigue Observation',
+          movement: '',
+          gaze: 'Forward road (continuous)',
+          description: 'Continuous driving period to observe natural fatigue behavior',
+          coords: seg.coords,
+          time: seg.time,
+          timeStr: seg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timeInRoute: fp.start,
+          lighting: seg.lighting,
+          phase: seg.phase,
+          duration: fp.end - fp.start,
+          isFatiguePeriod: true
+        });
+      }
+    });
+    
+    // Sort by time
+    scenarios.sort((a, b) => a.timeInRoute - b.timeInRoute);
+    
+    return scenarios;
+  },
+  
+  exportJson() {
+    if (!this.plan) {
+      showToast('No plan to export. Please plan a journey first.', 'error');
+      return;
+    }
+    const data = JSON.stringify(this.plan, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `sentinel-plan-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    showToast('Exported journey plan', 'success');
+  },
+  
+  loadPlan() {
+    const input = safeEl('planner_fileInput');
+    if (input) input.click();
+  },
+  
+  handleLoadPlan(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        this.plan = JSON.parse(e.target.result);
+        showToast('Plan loaded', 'success');
+        
+        // Update UI with loaded plan
+        if (this.plan.scenarios) {
+          const checklist = safeEl('planner_checklist');
+          if (checklist) {
+            checklist.innerHTML = this.plan.scenarios.map((s, i) => `
+              <div class="scenario-card">
+                <div class="type">${i + 1}. ${s.type}</div>
+                <div class="movement">${s.movement ? 'Movement: ' + s.movement : ''}</div>
+                <div class="timing">⏱️ ${s.timeStr || '--'}</div>
+              </div>
+            `).join('');
+          }
+          
+          const kpiScore = safeEl('planner_kpiScore');
+          if (kpiScore) kpiScore.textContent = this.plan.scenarios.length.toString();
+        }
+        
+        // Show route on map
+        if (plannerMap && this.plan.coords) {
+          plannerLayers.forEach(l => plannerMap.removeLayer(l));
+          plannerLayers = [];
+          const l = L.polyline(this.plan.coords, { color: '#e11d48', weight: 4 }).addTo(plannerMap);
+          plannerLayers.push(l);
+          plannerMap.fitBounds(L.latLngBounds(this.plan.coords).pad(0.1));
+        }
+      } catch(e) {
+        showToast('Invalid plan file', 'error');
+      }
+    };
+    reader.readAsText(file);
+  },
+  
+  init() {
+    // Setup search suggestions
+    this.setupSearch('planner_startInput', 'planner_startSuggestions', (loc) => { startLocation = loc; });
+    this.setupSearch('planner_endInput', 'planner_endSuggestions', (loc) => { endLocation = loc; });
+    
+    // Set default date to today
+    const dateInput = safeEl('planner_dateRange');
+    if (dateInput) {
+      dateInput.value = new Date().toISOString().slice(0, 10);
+    }
+    
+    // Button handlers
+    safeOn('plannerPlanBtn', 'click', () => this.planJourney());
+    safeOn('planner_cancelBtn', 'click', () => {
+      if (plannerAbortController) plannerAbortController.abort();
+    });
+    safeOn('planner_exportJson', 'click', () => this.exportJson());
+    safeOn('planner_loadPlan', 'click', () => this.loadPlan());
+    
+    // File input handler
+    const fileInput = safeEl('planner_fileInput');
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (file) this.handleLoadPlan(file);
+      });
+    }
+  }
+};
+
+// ====== NAVIGATOR MODULE ======
+let navigatorMap = null;
+let navigatorMapInitialized = false;
+let navigatorLayers = [];
+let positionMarker = null;
+let gpsWatchId = null;
+
+function initNavigatorMap() {
+  if (navigatorMapInitialized) return;
+  const container = safeEl('navigatorMap');
+  if (!container || typeof L === 'undefined') return;
+  
+  navigatorMap = L.map('navigatorMap', { zoomControl: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(navigatorMap);
+  navigatorMap.setView([51.5, 0], 4);
+  navigatorMapInitialized = true;
+  
+  // Create position marker
+  const posIcon = L.divIcon({
+    className: 'position-marker',
+    html: `<div style="width: 20px; height: 20px; background: #e11d48; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 12px rgba(225,29,72,0.6);"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  });
+  positionMarker = L.marker([0, 0], { icon: posIcon });
+}
+
+// ====== TTS (Text-to-Speech) MODULE ======
+const TTSModule = {
+  synth: window.speechSynthesis,
+  volume: 1,
+  muted: false,
+  voices: [],
+  preferredVoice: null,
+  
+  init() {
+    this.volume = parseFloat(localStorage.getItem('tts_volume') || '1');
+    this.muted = localStorage.getItem('tts_muted') === 'true';
+    
+    const volumeSlider = safeEl('nav_volume');
+    if (volumeSlider) volumeSlider.value = this.volume;
+    
+    this.updateMuteButton();
+    this.loadVoices();
+    
+    // Voices may load asynchronously
+    if (this.synth) {
+      this.synth.onvoiceschanged = () => this.loadVoices();
+    }
+  },
+  
+  loadVoices() {
+    if (!this.synth) return;
+    this.voices = this.synth.getVoices();
+    
+    // Prioritize natural-sounding English voices
+    const priorities = ['Natural', 'Google', 'Microsoft', 'Samantha', 'Daniel', 'Karen', 'Zira', 'David', 'Alex'];
+    for (const p of priorities) {
+      this.preferredVoice = this.voices.find(v => v.name.includes(p) && v.lang.startsWith('en'));
+      if (this.preferredVoice) break;
+    }
+    if (!this.preferredVoice) {
+      this.preferredVoice = this.voices.find(v => v.lang.startsWith('en'));
+    }
+  },
+  
+  speak(text, priority = false) {
+    if (this.muted || !this.synth || !text) return;
+    
+    if (priority) {
+      this.synth.cancel();
+    }
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.volume = this.volume;
+    utterance.rate = CONFIG.TTS_RATE;  // Slightly slower for clarity
+    utterance.pitch = CONFIG.TTS_PITCH; // Slightly higher for natural sound
+    
+    if (this.preferredVoice) {
+      utterance.voice = this.preferredVoice;
+    }
+    
+    this.synth.speak(utterance);
+  },
+  
+  setVolume(v) {
+    this.volume = v;
+    localStorage.setItem('tts_volume', v.toString());
+  },
+  
+  toggleMute() {
+    this.muted = !this.muted;
+    localStorage.setItem('tts_muted', this.muted.toString());
+    this.updateMuteButton();
+    if (this.muted && this.synth) this.synth.cancel();
+  },
+  
+  updateMuteButton() {
+    const btn = safeEl('nav_muteBtn');
+    if (btn) btn.textContent = this.muted ? '🔇' : '🔊';
+  },
+  
+  test() {
+    this.speak('Audio test successful. Sentinel Navigator is ready for your journey.', true);
+  }
+};
+
+const NavigatorModule = {
+  plan: null,
+  scenarios: [],
+  currentScenario: null,
+  currentScenarioIndex: -1,
+  isNavigating: false,
+  sessionLog: [],
+  updateInterval: null,
+  announcedScenarios: new Set(),
+  completedScenarios: new Set(),
+  navigationStartTime: null,
+  
+  // GPS reliability tracking
+  lastGPSUpdate: null,
+  lastGPSAccuracy: null,
+  gpsReliable: true,
+  
+  // Geofence entry detection with hysteresis
+  scenarioProximityState: new Map(), // scenarioIndex -> { wasInside: bool, consecutiveInside: number }
+  
+  // Manual control state
+  manualControlMode: false,
+  suggestedScenarioIndex: -1,
+  
+  loadPlan() {
+    const input = safeEl('nav_fileInput');
+    if (input) input.click();
+  },
+  
+  handleLoadPlan(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        this.plan = JSON.parse(e.target.result);
+        this.scenarios = this.plan.scenarios || [];
+        this.completedScenarios.clear();
+        this.announcedScenarios.clear();
+        this.currentScenarioIndex = -1;
+        this.renderPlan();
+        showToast(`Plan loaded: ${this.scenarios.length} scenarios`, 'success');
+        TTSModule.speak(`Plan loaded with ${this.scenarios.length} scenarios. Ready to navigate.`);
+      } catch(err) {
+        showToast('Invalid plan file', 'error');
+        console.error('Plan load error:', err);
+      }
+    };
+    reader.readAsText(file);
+  },
+  
+  renderPlan() {
+    const upcoming = safeEl('nav_upcomingScenarios');
+    const countChip = safeEl('nav_scenarioCount');
+    const startBtn = safeEl('nav_startNavBtn');
+    
+    if (!this.plan || !this.scenarios.length) {
+      if (upcoming) upcoming.innerHTML = '<div style="color: var(--text-muted);">Load a plan to see scenarios</div>';
+      if (startBtn) startBtn.disabled = true;
+      if (countChip) countChip.textContent = '0 remaining';
+      return;
+    }
+    
+    if (startBtn) startBtn.disabled = false;
+    
+    // Render route on map
+    if (navigatorMap) {
+      navigatorLayers.forEach(l => navigatorMap.removeLayer(l));
+      navigatorLayers = [];
+      
+      if (this.plan.coords) {
+        const routeLine = L.polyline(this.plan.coords, { color: '#e11d48', weight: 4, opacity: 0.7 }).addTo(navigatorMap);
+        navigatorLayers.push(routeLine);
+        navigatorMap.fitBounds(L.latLngBounds(this.plan.coords).pad(0.1));
+      }
+      
+      // Add scenario markers
+      this.scenarios.forEach((s, i) => {
+        if (s.coords) {
+          const completed = this.completedScenarios.has(i);
+          const icon = L.divIcon({
+            className: 'scenario-marker',
+            html: `<div style="background: ${completed ? '#9ca3af' : '#e11d48'}; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">${i + 1}</div>`,
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
+          });
+          const m = L.marker(s.coords, { icon }).bindPopup(`<strong>${s.type}</strong><br>${s.movement || ''}`).addTo(navigatorMap);
+          navigatorLayers.push(m);
+        }
+      });
+    }
+    
+    this.renderUpcomingScenarios();
+  },
+  
+  renderUpcomingScenarios() {
+    const upcoming = safeEl('nav_upcomingScenarios');
+    const countChip = safeEl('nav_scenarioCount');
+    
+    const remaining = this.scenarios.filter((_, i) => !this.completedScenarios.has(i));
+    if (countChip) countChip.textContent = `${remaining.length} remaining`;
+    
+    if (!upcoming) return;
+    
+    if (remaining.length === 0) {
+      upcoming.innerHTML = '<div style="color: var(--good); text-align: center; padding: 16px;">🎉 All scenarios completed!</div>';
+      return;
+    }
+    
+    upcoming.innerHTML = this.scenarios.map((s, i) => {
+      const completed = this.completedScenarios.has(i);
+      const isActive = i === this.currentScenarioIndex;
+      
+      return `
+        <div class="scenario-card ${completed ? 'completed' : ''} ${isActive ? 'active' : ''}">
+          <div class="type">${i + 1}. ${s.type}</div>
+          <div class="movement">${s.movement ? s.movement : ''} ${s.gaze ? '• ' + s.gaze : ''}</div>
+          <div class="timing">⏱️ ${s.timeStr || 'at ' + Math.floor((s.timeInRoute || 0) / 60) + 'm'}</div>
+        </div>
+      `;
+    }).join('');
+  },
+  
+  renderCurrentScenario() {
+    const container = safeEl('nav_currentScenario');
+    const timerEl = safeEl('nav_scenarioTimer');
+    
+    if (!container) return;
+    
+    if (!this.currentScenario) {
+      container.innerHTML = `
+        <div style="font-size: 12px; color: var(--text-muted);">No active scenario</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">${this.isNavigating ? 'Following route...' : 'Start navigation to begin'}</div>
+      `;
+      if (timerEl) timerEl.textContent = '--:--';
+      return;
+    }
+    
+    const s = this.currentScenario;
+    container.innerHTML = `
+      <div style="background: var(--good-bg); border: 1px solid var(--good-border); border-radius: 12px; padding: 16px;">
+        <div style="font-size: 18px; font-weight: 800; color: var(--good);">${this.getScenarioIcon(s.type)} ${s.type}</div>
+        <div style="margin-top: 10px; font-size: 13px;">
+          ${s.movement ? `<div><strong>Movement:</strong> ${s.movement}</div>` : ''}
+          ${s.gaze ? `<div><strong>Gaze:</strong> ${s.gaze}</div>` : ''}
+          ${s.description ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">${s.description}</div>` : ''}
+        </div>
+        <div style="margin-top: 12px; height: 6px; background: var(--panel-border); border-radius: 3px; overflow: hidden;">
+          <div id="nav_progressBar" style="height: 100%; background: var(--good); width: 0%; transition: width 0.3s;"></div>
+        </div>
+      </div>
+    `;
+  },
+  
+  getScenarioIcon(type) {
+    const icons = {
+      'VATS': '👀',
+      'Long Distraction': '😵',
+      'Phone Basic': '📱',
+      'Phone Advanced': '📲',
+      'Drowsiness': '😴',
+      'Microsleep': '💤',
+      'Sleep': '🛏️',
+      'Unresponsive': '⚠️',
+      'Impairment': '🍺'
+    };
+    return icons[type] || icons[Object.keys(icons).find(k => type?.includes(k))] || '📍';
+  },
+  
+  showTTSBar(instruction, details) {
+    const bar = safeEl('nav_ttsBar');
+    const instrEl = safeEl('nav_ttsInstruction');
+    const detailsEl = safeEl('nav_ttsDetails');
+    
+    if (bar) {
+      bar.classList.add('active');
+      if (instrEl) instrEl.textContent = instruction;
+      if (detailsEl) detailsEl.textContent = details;
+    }
+  },
+  
+  hideTTSBar() {
+    const bar = safeEl('nav_ttsBar');
+    if (bar) bar.classList.remove('active');
+  },
+  
+  announceScenario(scenario, context) {
+    let instruction = '';
+    let details = '';
+    
+    // Skip announcements for fatigue periods
+    if (scenario.isFatiguePeriod) {
+      if (context === 'start') {
+        instruction = '🧘 Fatigue Observation Period';
+        details = 'Continue normal driving - No scenarios for the next ' + Math.round(scenario.duration / 60) + ' minutes';
+        TTSModule.speak('Entering fatigue observation period. Continue driving normally for the next ' + Math.round(scenario.duration / 60) + ' minutes. Relax and drive naturally.', true);
+        this.showTTSBar(instruction, details);
+        this.log('Started fatigue observation period');
+      } else if (context === 'end') {
+        instruction = '✓ Fatigue Period Complete';
+        details = 'Resuming scenario schedule';
+        TTSModule.speak('Fatigue observation period complete. Scenarios will resume shortly.', true);
+        this.showTTSBar(instruction, details);
+        setTimeout(() => this.hideTTSBar(), 5000);
+        this.log('Completed fatigue observation period');
+      }
+      return;
+    }
+    
+    // Generate detailed announcements for regular scenarios
+    if (context === 'approaching') {
+      instruction = `Approaching ${scenario.type}`;
+      details = `${scenario.movement ? 'Movement: ' + scenario.movement : ''} ${scenario.gaze ? '• Gaze: ' + scenario.gaze : ''}`;
+      
+      // Create detailed announcement based on scenario characteristics
+      let message = `In 30 seconds, ${scenario.type} scenario. `;
+      
+      // Add movement instruction
+      if (scenario.movement) {
+        const movementDescriptions = {
+          'Owl': 'Turn your head and eyes together',
+          'Lizard': 'Move only your eyes, keep head forward',
+          'Body lean': 'Lean and turn your whole body',
+          'Tarsier': 'Turn only your head, keep eyes fixed'
+        };
+        message += movementDescriptions[scenario.movement] || `Use ${scenario.movement} movement`;
+        message += '. ';
+      }
+      
+      // Add gaze target
+      if (scenario.gaze) {
+        message += `Look at: ${scenario.gaze}. `;
+      }
+      
+      // Add duration hint for short scenarios
+      if (scenario.type === 'VATS') {
+        message += 'Repeat the glances as instructed. ';
+      }
+      
+      message += 'Get ready.';
+      
+      TTSModule.speak(message, true);
+      
+    } else if (context === 'start') {
+      instruction = `START NOW: ${scenario.type}`;
+      details = `${scenario.movement ? scenario.movement : ''} ${scenario.gaze ? '• ' + scenario.gaze : ''}`;
+      
+      let message = `Start now! `;
+      
+      // Add scenario-specific instructions
+      if (scenario.type === 'VATS') {
+        message += 'Begin the visual attention time sharing task. ';
+      } else if (scenario.type === 'Long Distraction') {
+        message += 'Maintain the distraction. ';
+      }
+      
+      // Add movement and gaze
+      if (scenario.movement && scenario.gaze) {
+        const movementShort = {
+          'Owl': 'head and eyes',
+          'Lizard': 'eyes only',
+          'Body lean': 'whole body',
+          'Tarsier': 'head only'
+        };
+        message += `${movementShort[scenario.movement] || scenario.movement} to ${scenario.gaze}. `;
+      } else if (scenario.gaze) {
+        message += `Look at ${scenario.gaze}. `;
+      }
+      
+      // Add safety reminder
+      message += 'Stay safe.';
+      
+      TTSModule.speak(message, true);
+      
+    } else if (context === 'end') {
+      instruction = `${scenario.type} Complete`;
+      details = 'Return to normal driving';
+      
+      let message = 'Scenario complete. ';
+      
+      // Add specific completion instruction
+      if (scenario.type === 'VATS' || scenario.type === 'Long Distraction') {
+        message += 'Return your attention to the forward road. ';
+      }
+      
+      message += 'Resume normal driving.';
+      
+      TTSModule.speak(message, true);
+    }
+    
+    this.showTTSBar(instruction, details);
+    this.log(`Announced: ${scenario.type} (${context}) - ${scenario.movement || 'N/A'} - ${scenario.gaze || 'N/A'}`);
+    
+    // Hide bar after a delay
+    if (context === 'end') {
+      setTimeout(() => this.hideTTSBar(), 5000);
+    }
+  },
+  
+  // Calculate distance between two coords in meters
+  distanceBetween(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Earth radius in meters
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  },
+  
+  updatePosition(lat, lon, speed, accuracy = null) {
+    // Update position display
+    const posEl = safeEl('nav_position');
+    const speedEl = safeEl('nav_speed');
+    if (posEl) posEl.textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+    if (speedEl) speedEl.textContent = `${Math.round((speed || 0) * 3.6)} km/h`;
+    
+    // Update GPS chip
+    const gpsChip = safeEl('gpsChip');
+    if (gpsChip) {
+      gpsChip.textContent = '📍 GPS: Active';
+      gpsChip.className = 'chip ok';
+    }
+    
+    // Update position marker on map
+    if (navigatorMap && positionMarker) {
+      positionMarker.setLatLng([lat, lon]);
+      if (!navigatorMap.hasLayer(positionMarker)) {
+        positionMarker.addTo(navigatorMap);
+      }
+    }
+    
+    // Check scenarios if navigating
+    if (this.isNavigating) {
+      this.checkScenarios(lat, lon, accuracy);
+    }
+  },
+  
+  checkScenarios(lat, lon, accuracy = null) {
+    if (!this.scenarios.length) return;
+    
+    const now = Date.now();
+    const elapsed = (now - this.navigationStartTime) / 1000;
+    
+    // Update GPS reliability
+    this.lastGPSUpdate = now;
+    this.lastGPSAccuracy = accuracy;
+    const gpsStale = this.lastGPSUpdate && (now - this.lastGPSUpdate > CONFIG.GPS_STALE_THRESHOLD);
+    const gpsInaccurate = accuracy && accuracy > CONFIG.GPS_ACCURACY_THRESHOLD;
+    this.gpsReliable = !gpsStale && !gpsInaccurate;
+    
+    // Update GPS status
+    const gpsChip = safeEl('gpsChip');
+    const gpsStatusChip = safeEl('nav_gpsStatusChip');
+    if (!this.gpsReliable) {
+      if (gpsChip) {
+        gpsChip.textContent = '📍 GPS: Unreliable';
+        gpsChip.className = 'chip warn';
+      }
+      if (gpsStatusChip) {
+        gpsStatusChip.style.display = '';
+        gpsStatusChip.className = 'chip warn';
+      }
+      this.manualControlMode = true;
+    } else {
+      if (gpsStatusChip) {
+        gpsStatusChip.style.display = 'none';
+      }
+    }
+    
+    this.scenarios.forEach((s, i) => {
+      if (this.completedScenarios.has(i)) return;
+      
+      // Check by time if we have timeInRoute
+      if (s.timeInRoute !== undefined) {
+        const timeToScenario = s.timeInRoute - elapsed;
+        
+        // Announce 30 seconds before
+        if (timeToScenario <= 30 && timeToScenario > 25 && !this.announcedScenarios.has(i)) {
+          this.announcedScenarios.add(i);
+          this.announceScenario(s, 'approaching');
+        }
+        
+        // Start the scenario
+        if (timeToScenario <= 0 && timeToScenario > -s.duration && this.currentScenarioIndex !== i) {
+          this.currentScenarioIndex = i;
+          this.currentScenario = s;
+          this.renderCurrentScenario();
+          this.renderUpcomingScenarios();
+          this.announceScenario(s, 'start');
+          this.log(`AUTO-START: ${s.id} - ${s.type} (time-based)`);
+        }
+        
+        // End the scenario
+        if (timeToScenario <= -s.duration && !this.completedScenarios.has(i)) {
+          this.completedScenarios.add(i);
+          this.announceScenario(s, 'end');
+          this.currentScenario = null;
+          this.currentScenarioIndex = -1;
+          this.renderCurrentScenario();
+          this.renderUpcomingScenarios();
+          this.log(`AUTO-END: ${s.id} - ${s.type}`);
+        }
+      }
+      
+      // Check by proximity with robust geofence detection
+      else if (s.coords && this.gpsReliable) {
+        const dist = this.distanceBetween(lat, lon, s.coords[0], s.coords[1]);
+        
+        // Initialize proximity state
+        if (!this.scenarioProximityState.has(i)) {
+          this.scenarioProximityState.set(i, { wasInside: false, consecutiveInside: 0 });
+        }
+        
+        const state = this.scenarioProximityState.get(i);
+        const isInAnnounceZone = dist < CONFIG.PROXIMITY_ANNOUNCE_METERS;
+        const isInStartZone = dist < CONFIG.PROXIMITY_START_METERS;
+        
+        // Hysteresis: require consistent readings
+        if (isInStartZone) {
+          state.consecutiveInside++;
+        } else {
+          state.consecutiveInside = 0;
+        }
+        
+        // Announce when entering announce zone
+        if (isInAnnounceZone && !state.wasInside && !this.announcedScenarios.has(i)) {
+          this.announcedScenarios.add(i);
+          this.announceScenario(s, 'approaching');
+          this.log(`APPROACHING: ${s.id} - Distance: ${Math.round(dist)}m`);
+        }
+        
+        // Start when consistently in start zone
+        if (state.consecutiveInside >= 2 && !state.wasInside && this.currentScenarioIndex !== i) {
+          state.wasInside = true;
+          this.currentScenarioIndex = i;
+          this.currentScenario = s;
+          this.renderCurrentScenario();
+          this.renderUpcomingScenarios();
+          this.announceScenario(s, 'start');
+          this.log(`GEOFENCE-START: ${s.id} - Dist: ${Math.round(dist)}m, Acc: ${accuracy || 'N/A'}m`);
+          
+          // Auto-complete after duration
+          setTimeout(() => {
+            if (this.currentScenarioIndex === i) {
+              this.completedScenarios.add(i);
+              this.announceScenario(s, 'end');
+              this.currentScenario = null;
+              this.currentScenarioIndex = -1;
+              this.renderCurrentScenario();
+              this.renderUpcomingScenarios();
+              this.log(`AUTO-END: ${s.id} (timeout)`);
+            }
+          }, (s.duration || 30) * 1000);
+        }
+        
+        // Reset state when far away
+        if (dist > CONFIG.PROXIMITY_ANNOUNCE_METERS + CONFIG.PROXIMITY_TOLERANCE) {
+          state.wasInside = false;
+        }
+      }
+    });
+  },
+
+  
+  updateTimer() {
+    if (!this.navigationStartTime) return;
+    
+    const elapsed = Math.floor((Date.now() - this.navigationStartTime) / 1000);
+    const hrs = Math.floor(elapsed / 3600);
+    const mins = Math.floor((elapsed % 3600) / 60);
+    const secs = elapsed % 60;
+    
+    const sessionChip = safeEl('sessionChip');
+    if (sessionChip) {
+      sessionChip.textContent = `⏱️ ${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    // Update scenario timer if active
+    if (this.currentScenario) {
+      const timerEl = safeEl('nav_scenarioTimer');
+      const progressBar = document.getElementById('nav_progressBar');
+      const scenarioElapsed = elapsed - (this.currentScenario.timeInRoute || 0);
+      const remaining = Math.max(0, (this.currentScenario.duration || 30) - scenarioElapsed);
+      
+      if (timerEl) {
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+      }
+      
+      if (progressBar && this.currentScenario.duration) {
+        const pct = Math.min(100, (scenarioElapsed / this.currentScenario.duration) * 100);
+        progressBar.style.width = pct + '%';
+      }
+    }
+    
+    // Update time to next scenario
+    const nextScenarioTimeChip = safeEl('nav_nextScenarioTime');
+    if (nextScenarioTimeChip) {
+      // Find next uncompleted scenario
+      const nextScenario = this.scenarios.find((s, i) => !this.completedScenarios.has(i) && i !== this.currentScenarioIndex);
+      if (nextScenario && nextScenario.timeInRoute !== undefined) {
+        const timeToNext = nextScenario.timeInRoute - elapsed;
+        if (timeToNext > 0) {
+          const mins = Math.floor(timeToNext / 60);
+          const secs = Math.floor(timeToNext % 60);
+          nextScenarioTimeChip.textContent = `Next: ${mins}:${secs.toString().padStart(2, '0')}`;
+          nextScenarioTimeChip.style.display = '';
+        } else {
+          nextScenarioTimeChip.style.display = 'none';
+        }
+      } else {
+        nextScenarioTimeChip.style.display = 'none';
+      }
+    }
+  },
+  
+  startNavigation() {
+    if (!this.plan) {
+      showToast('Load a plan first', 'error');
+      return;
+    }
+    
+    this.isNavigating = true;
+    this.navigationStartTime = Date.now();
+    this.completedScenarios.clear();
+    this.announcedScenarios.clear();
+    this.currentScenarioIndex = -1;
+    this.currentScenario = null;
+    sessionStart = Date.now();
+    
+    // Start GPS tracking
+    if (navigator.geolocation) {
+      gpsWatchId = navigator.geolocation.watchPosition(
+        (pos) => this.updatePosition(pos.coords.latitude, pos.coords.longitude, pos.coords.speed, pos.coords.accuracy),
+        (err) => {
+          console.warn('GPS error:', err);
+          const gpsChip = safeEl('gpsChip');
+          if (gpsChip) {
+            gpsChip.textContent = '📍 GPS: Error';
+            gpsChip.className = 'chip warn';
+          }
+          this.manualControlMode = true;
+          this.showManualControls();
+        },
+        { enableHighAccuracy: true, timeout: 30000, maximumAge: 5000 }
+      );
+    }
+    
+    // Start update interval
+    if (this.updateInterval) clearInterval(this.updateInterval);
+    this.updateInterval = setInterval(() => this.updateTimer(), 1000);
+    
+    // Update UI
+    const startBtn = safeEl('nav_startNavBtn');
+    const stopBtn = safeEl('nav_stopNavBtn');
+    if (startBtn) startBtn.disabled = true;
+    if (stopBtn) stopBtn.disabled = false;
+    
+    // Show manual controls - always available during navigation
+    this.showManualControls();
+    
+    this.renderCurrentScenario();
+    this.renderUpcomingScenarios();
+    
+    this.log('Navigation started');
+    showToast('Navigation started', 'success');
+    TTSModule.speak('Navigation started. Follow the route and scenarios will be announced.', false);
+    
+    // Center map on route and position
+    if (navigatorMap) {
+      // If we have a planned route, fit it in view
+      if (this.plan.coords && this.plan.coords.length > 0) {
+        navigatorMap.fitBounds(L.latLngBounds(this.plan.coords).pad(0.1));
+      }
+      // If we have a position marker, center on it
+      else if (positionMarker && positionMarker.getLatLng()) {
+        const latlng = positionMarker.getLatLng();
+        // Only center if position is not at origin (0,0)
+        if (latlng.lat !== 0 || latlng.lng !== 0) {
+          navigatorMap.setView(latlng, 15);
+        }
+      }
+    }
+  },
+  
+  stopNavigation() {
+    this.isNavigating = false;
+    
+    // Stop GPS tracking
+    if (gpsWatchId !== null) {
+      navigator.geolocation.clearWatch(gpsWatchId);
+      gpsWatchId = null;
+    }
+    
+    // Stop update interval
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
+    
+    // Update UI
+    const startBtn = safeEl('nav_startNavBtn');
+    const stopBtn = safeEl('nav_stopNavBtn');
+    if (startBtn) startBtn.disabled = false;
+    if (stopBtn) stopBtn.disabled = true;
+    
+    // Hide manual controls when navigation stops
+    this.hideManualControls();
+    
+    this.hideTTSBar();
+    this.currentScenario = null;
+    this.renderCurrentScenario();
+    
+    this.log('Navigation stopped');
+    showToast('Navigation stopped', 'info');
+    TTSModule.speak('Navigation stopped.');
+  },
+  
+  log(message) {
+    const entry = { time: new Date().toISOString(), message };
+    this.sessionLog.push(entry);
+    console.log(`[Navigator] ${message}`);
+  },
+  
+  exportLog() {
+    if (this.sessionLog.length === 0) {
+      showToast('No log entries to export', 'info');
+      return;
+    }
+    
+    const content = this.sessionLog
+      .map(e => `[${e.time}] ${e.message}`)
+      .join('\n');
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `sentinel-nav-log-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    
+    showToast('Log exported', 'success');
+  },
+  
+  init() {
+    // Initialize TTS
+    TTSModule.init();
+    
+    // File input handler
+    const fileInput = safeEl('nav_fileInput');
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (file) this.handleLoadPlan(file);
+      });
+    }
+    
+    // Button handlers
+    safeOn('nav_loadPlanBtn', 'click', () => this.loadPlan());
+    safeOn('nav_startNavBtn', 'click', () => this.startNavigation());
+    safeOn('nav_stopNavBtn', 'click', () => this.stopNavigation());
+    safeOn('nav_exportLogBtn', 'click', () => this.exportLog());
+    
+    // TTS controls
+    safeOn('nav_testTtsBtn', 'click', () => TTSModule.test());
+    safeOn('nav_muteBtn', 'click', () => TTSModule.toggleMute());
+    
+    const volumeSlider = safeEl('nav_volume');
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', (e) => {
+        TTSModule.setVolume(parseFloat(e.target.value));
+      });
+    }
+    
+    // Manual control button handlers
+    safeOn('nav_executeScenarioBtn', 'click', () => this.manualExecuteScenario());
+    safeOn('nav_skipScenarioBtn', 'click', () => this.manualSkipScenario());
+    safeOn('nav_nextScenarioBtn', 'click', () => this.manualNextScenario());
+    safeOn('nav_prevScenarioBtn', 'click', () => this.manualPrevScenario());
+    safeOn('nav_redoScenarioBtn', 'click', () => this.manualRedoScenario());
+  },
+  
+  // Manual control functions
+  showManualControls() {
+    const card = safeEl('nav_manualControlCard');
+    if (card) card.style.display = 'block';
+  },
+  
+  hideManualControls() {
+    const card = safeEl('nav_manualControlCard');
+    if (card) card.style.display = 'none';
+  },
+  
+  manualExecuteScenario() {
+    const nextIndex = this.scenarios.findIndex((s, i) => !this.completedScenarios.has(i));
+    if (nextIndex === -1) {
+      showToast('No more scenarios to execute', 'info');
+      return;
+    }
+    
+    const scenario = this.scenarios[nextIndex];
+    this.currentScenarioIndex = nextIndex;
+    this.currentScenario = scenario;
+    this.renderCurrentScenario();
+    this.renderUpcomingScenarios();
+    this.announceScenario(scenario, 'start');
+    this.log(`MANUAL-START: ${scenario.id} - ${scenario.type}`);
+    
+    // Auto-complete after duration
+    setTimeout(() => {
+      if (this.currentScenarioIndex === nextIndex) {
+        this.completedScenarios.add(nextIndex);
+        this.announceScenario(scenario, 'end');
+        this.currentScenario = null;
+        this.currentScenarioIndex = -1;
+        this.renderCurrentScenario();
+        this.renderUpcomingScenarios();
+        this.log(`MANUAL-END: ${scenario.id}`);
+      }
+    }, (scenario.duration || 30) * 1000);
+  },
+  
+  manualSkipScenario() {
+    const nextIndex = this.scenarios.findIndex((s, i) => !this.completedScenarios.has(i));
+    if (nextIndex === -1) {
+      showToast('No scenarios to skip', 'info');
+      return;
+    }
+    
+    const scenario = this.scenarios[nextIndex];
+    this.completedScenarios.add(nextIndex);
+    this.log(`MANUAL-SKIP: ${scenario.id} - ${scenario.type}`);
+    this.renderUpcomingScenarios();
+    showToast(`Skipped: ${scenario.type}`, 'info');
+  },
+  
+  manualNextScenario() {
+    // Move to next scenario
+    if (this.currentScenario) {
+      this.completedScenarios.add(this.currentScenarioIndex);
+      this.log(`MANUAL-NEXT: Ending ${this.currentScenario.id}`);
+      this.currentScenario = null;
+      this.currentScenarioIndex = -1;
+      this.renderCurrentScenario();
+    }
+    this.manualExecuteScenario();
+  },
+  
+  manualPrevScenario() {
+    // Find the last completed scenario
+    let prevIndex = -1;
+    for (let i = this.scenarios.length - 1; i >= 0; i--) {
+      if (this.completedScenarios.has(i)) {
+        prevIndex = i;
+        break;
+      }
+    }
+    
+    if (prevIndex === -1) {
+      showToast('No previous scenario', 'info');
+      return;
+    }
+    
+    // Uncomplete it and execute
+    this.completedScenarios.delete(prevIndex);
+    const scenario = this.scenarios[prevIndex];
+    this.currentScenarioIndex = prevIndex;
+    this.currentScenario = scenario;
+    this.renderCurrentScenario();
+    this.renderUpcomingScenarios();
+    this.announceScenario(scenario, 'start');
+    this.log(`MANUAL-PREV: ${scenario.id} - ${scenario.type}`);
+    
+    setTimeout(() => {
+      if (this.currentScenarioIndex === prevIndex) {
+        this.completedScenarios.add(prevIndex);
+        this.announceScenario(scenario, 'end');
+        this.currentScenario = null;
+        this.currentScenarioIndex = -1;
+        this.renderCurrentScenario();
+        this.renderUpcomingScenarios();
+      }
+    }, (scenario.duration || 30) * 1000);
+  },
+  
+  manualRedoScenario() {
+    // Redo the last completed scenario
+    let lastIndex = -1;
+    for (let i = this.scenarios.length - 1; i >= 0; i--) {
+      if (this.completedScenarios.has(i)) {
+        lastIndex = i;
+        break;
+      }
+    }
+    
+    if (lastIndex === -1) {
+      showToast('No scenario to redo', 'info');
+      return;
+    }
+    
+    // Remove from completed and re-execute
+    this.completedScenarios.delete(lastIndex);
+    const scenario = this.scenarios[lastIndex];
+    this.currentScenarioIndex = lastIndex;
+    this.currentScenario = scenario;
+    this.renderCurrentScenario();
+    this.renderUpcomingScenarios();
+    this.announceScenario(scenario, 'start');
+    this.log(`MANUAL-REDO: ${scenario.id} - ${scenario.type}`);
+    
+    setTimeout(() => {
+      if (this.currentScenarioIndex === lastIndex) {
+        this.completedScenarios.add(lastIndex);
+        this.announceScenario(scenario, 'end');
+        this.currentScenario = null;
+        this.currentScenarioIndex = -1;
+        this.renderCurrentScenario();
+        this.renderUpcomingScenarios();
+      }
+    }, (scenario.duration || 30) * 1000);
+  }
+};
+
+// ====== HELP MODAL ======
+function initHelpModal() {
+  const helpBtn = safeEl('helpBtn');
+  const helpModal = safeEl('helpModal');
+  const closeBtn = safeEl('closeHelpBtn');
+  
+  if (helpBtn && helpModal) {
+    helpBtn.addEventListener('click', () => {
+      helpModal.classList.add('show');
+    });
+  }
+  
+  if (closeBtn && helpModal) {
+    closeBtn.addEventListener('click', () => {
+      helpModal.classList.remove('show');
+    });
+  }
+  
+  if (helpModal) {
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) {
+        helpModal.classList.remove('show');
+      }
+    });
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  updateOnlineStatus();
+  startGPSWatch();
+  setInterval(updateSessionTimer, 1000);
+  
+  // Initialize modules
+  PretripModule.init();
+  PlannerModule.init();
+  NavigatorModule.init();
+  initHelpModal();
+  
+  console.log('Sentinel Data Platform loaded with', EURO_NCAP_SCENARIOS.length, 'Euro NCAP scenarios');
+});
+
+// Prevent accidental close
+window.addEventListener('beforeunload', e => {
+  if (sessionStart || NavigatorModule.isNavigating) {
+    e.preventDefault();
+    e.returnValue = 'Session in progress. Leave anyway?';
+  }
+});
+</script>
+</body>
+</html>
