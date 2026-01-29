@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budapest ML Conference 2024 - Key Takeaways | Gergely Várhelyi-Tóth</title>
+  <meta name="description" content="Machine Learning Engineer & CEO @ roboGaze">
+  <meta name="author" content="Gergely Várhelyi-Tóth">
+  <link rel="icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-content">
+      <div class="profile">
+        <img src="/img/profile.jpg" alt="Gergely Várhelyi-Tóth" class="profile-image" onerror="this.style.display='none'">
+        <h1 class="profile-name">Gergely Várhelyi-Tóth</h1>
+        <p class="profile-title">ML Engineer & CEO @ roboGaze</p>
+      </div>
+      
+      <div class="profile-bio">
+        <p>I work on formal verification of neural networks for safety-critical automotive applications. My research focuses on ensuring ML models meet ASPICE and ASIL standards through mathematical rigor.</p>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="/" class="nav-item">Home</a>
+        <a href="/blog/" class="nav-item">Blog</a>
+        <a href="/microblog/" class="nav-item">Microblog</a>
+        <a href="/projects/" class="nav-item">Projects</a>
+        <a href="/now/" class="nav-item">Now</a>
+        <a href="/reading/" class="nav-item">Reading</a>
+        <a href="/tools/" class="nav-item">Tools</a>
+        <a href="/resume/" class="nav-item">Resume</a>
+      </nav>
+      
+      <div class="social-links-sidebar">
+        <a href="https://github.com/tgergo1" target="_blank" aria-label="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/tgergo1" target="_blank" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://twitter.com/darwinous" target="_blank" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="mailto:contact@tgergo1.com" aria-label="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </div>
+      
+      <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="main-container">
+  <article>
+    <div class="content-header">
+      <h1 class="content-title">Budapest ML Conference 2024 - Key Takeaways</h1>
+      <div class="content-meta">
+        <span><i class="far fa-calendar"></i> November 15, 2025</span>
+        
+        <span><i class="fas fa-tags"></i> conference, machine-learning, Budapest, networking</span>
+        
+      </div>
+    </div>
+
+    
+    <img src="/img/6.jpg" alt="Budapest ML Conference 2024 - Key Takeaways" style="width: 100%; border-radius: 8px; margin-bottom: 2rem;">
+    
+
+    <div class="content-body">
+      <p>Last week, I had the privilege of presenting at the Budapest ML Conference 2024. The energy and innovation in the Hungarian ML community continue to impress me!</p>
+
+<h2 id="my-talk-formal-verification-of-neural-networks">My Talk: Formal Verification of Neural Networks</h2>
+
+<p>I presented our work on formal verification techniques for neural networks in automotive applications. The main points covered:</p>
+
+<ul>
+  <li>Current challenges in ML verification</li>
+  <li>Mathematical foundations of formal methods</li>
+  <li>Practical applications in autonomous vehicles</li>
+  <li>Integration with ASPICE/ASIL workflows</li>
+</ul>
+
+<p>The audience was highly engaged, with excellent questions about scalability and real-world deployment challenges.</p>
+
+<h2 id="other-highlights">Other Highlights</h2>
+
+<p><strong>Synthetic Data Generation Panel</strong>
+The panel on synthetic data was fascinating. As someone working with data collection for automotive ML, I found the discussions about:</p>
+<ul>
+  <li>Quality vs. quantity trade-offs</li>
+  <li>Domain gap challenges</li>
+  <li>Validation strategies</li>
+</ul>
+
+<p><strong>Networking</strong></p>
+
+<p>Connected with amazing researchers and practitioners from:</p>
+<ul>
+  <li>BME (Budapest University of Technology)</li>
+  <li>Local startups</li>
+  <li>International companies with Hungarian offices</li>
+</ul>
+
+<h2 id="reflections">Reflections</h2>
+
+<p>The Budapest ML scene is thriving. It’s exciting to see so much talent and innovation coming from Hungary. Our work at roboGaze is part of this broader ecosystem of excellence.</p>
+
+<p>Looking forward to next year’s conference!</p>
+
+<hr />
+
+<p><em>Check out the <a href="https://budapestml.hu/2024/hu/">conference website</a> for more information and other talks.</em></p>
+
+    </div>
+
+    
+    <div class="tags" style="margin-top: 3rem;">
+      
+      <span class="tag">conference</span>
+      
+      <span class="tag">machine-learning</span>
+      
+      <span class="tag">Budapest</span>
+      
+      <span class="tag">networking</span>
+      
+    </div>
+    
+
+    <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+      <a href="/blog/" class="btn-secondary btn">← Back to Blog</a>
+    </div>
+  </article>
+</div>
+
+    
+    <footer>
+      <p>© 2025 Gergely Várhelyi-Tóth. Built with Jekyll.</p>
+    </footer>
+  </main>
+
+  <script>
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    const body = document.body;
+    const icon = darkToggle.querySelector('i');
+
+    // Check for saved dark mode preference
+    const darkMode = localStorage.getItem('darkMode');
+    if (darkMode === 'enabled') {
+      body.classList.add('dark-mode');
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    }
+
+    darkToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('darkMode', 'enabled');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      } else {
+        localStorage.setItem('darkMode', null);
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      }
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

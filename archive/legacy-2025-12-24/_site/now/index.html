@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Now | Gergely Várhelyi-Tóth</title>
+  <meta name="description" content="Machine Learning Engineer & CEO @ roboGaze">
+  <meta name="author" content="Gergely Várhelyi-Tóth">
+  <link rel="icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-content">
+      <div class="profile">
+        <img src="/img/profile.jpg" alt="Gergely Várhelyi-Tóth" class="profile-image" onerror="this.style.display='none'">
+        <h1 class="profile-name">Gergely Várhelyi-Tóth</h1>
+        <p class="profile-title">ML Engineer & CEO @ roboGaze</p>
+      </div>
+      
+      <div class="profile-bio">
+        <p>I work on formal verification of neural networks for safety-critical automotive applications. My research focuses on ensuring ML models meet ASPICE and ASIL standards through mathematical rigor.</p>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="/" class="nav-item">Home</a>
+        <a href="/blog/" class="nav-item">Blog</a>
+        <a href="/microblog/" class="nav-item">Microblog</a>
+        <a href="/projects/" class="nav-item">Projects</a>
+        <a href="/now/" class="nav-item">Now</a>
+        <a href="/reading/" class="nav-item">Reading</a>
+        <a href="/tools/" class="nav-item">Tools</a>
+        <a href="/resume/" class="nav-item">Resume</a>
+      </nav>
+      
+      <div class="social-links-sidebar">
+        <a href="https://github.com/tgergo1" target="_blank" aria-label="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/tgergo1" target="_blank" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://twitter.com/darwinous" target="_blank" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="mailto:contact@tgergo1.com" aria-label="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </div>
+      
+      <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="main-container">
+  <div class="content-header">
+    <h1 class="content-title">What I'm Doing Now</h1>
+    <p class="post-date">Last updated: November 2025</p>
+    <p class="section-intro">Inspired by <a href="https://nownownow.com/about" target="_blank">nownownow.com</a> — a snapshot of my current focus.</p>
+  </div>
+
+  <div class="content-body">
+    <h2>Work</h2>
+    <p>Leading <strong>roboGaze</strong> as CEO, focusing on:</p>
+    <ul>
+      <li>Formal verification of neural networks for automotive safety</li>
+      <li>Building ML models compliant with ASPICE and ASIL standards</li>
+      <li>Growing the team and establishing partnerships with automotive OEMs</li>
+    </ul>
+
+    <h2>Research</h2>
+    <ul>
+      <li>Deep diving into category theory and its applications to ML</li>
+      <li>Exploring advanced formal verification techniques</li>
+      <li>Working on robustness certification methods for neural networks</li>
+    </ul>
+
+    <h2>Learning</h2>
+    <ul>
+      <li>Studying theoretical physics in my spare time</li>
+      <li>Improving my Chinese (currently HSK 2 level, aiming for HSK 3)</li>
+      <li>Reading about algebraic topology and its ML applications</li>
+    </ul>
+
+    <h2>Building</h2>
+    <ul>
+      <li>This website — my personal digital garden</li>
+      <li>Tools for automated neural network verification</li>
+      <li>Infrastructure for synthetic data generation</li>
+    </ul>
+
+    <h2>Life</h2>
+    <ul>
+      <li>Rock climbing regularly (both indoor and outdoor)</li>
+      <li>Based in Budapest, Hungary 🇭🇺</li>
+      <li>Passionate about technological advancement and cultural diversity</li>
+    </ul>
+
+    <h2>Goals</h2>
+    <ul>
+      <li>Scale roboGaze to become a leader in automotive ML safety</li>
+      <li>Publish research on formal verification methods</li>
+      <li>Speak at major ML and automotive conferences</li>
+      <li>Reach HSK 3 in Chinese by end of year</li>
+    </ul>
+  </div>
+</div>
+
+    
+    <footer>
+      <p>© 2025 Gergely Várhelyi-Tóth. Built with Jekyll.</p>
+    </footer>
+  </main>
+
+  <script>
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    const body = document.body;
+    const icon = darkToggle.querySelector('i');
+
+    // Check for saved dark mode preference
+    const darkMode = localStorage.getItem('darkMode');
+    if (darkMode === 'enabled') {
+      body.classList.add('dark-mode');
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    }
+
+    darkToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('darkMode', 'enabled');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      } else {
+        localStorage.setItem('darkMode', null);
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      }
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-11-24T21:58:24+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Gergely Várhelyi-Tóth</title><subtitle>Personal website, blog, and digital garden</subtitle><author><name>Gergely Várhelyi-Tóth</name></author><entry><title type="html">Welcome to My New Blog</title><link href="http://localhost:4000/blog/2025/11/24/welcome-to-my-blog/" rel="alternate" type="text/html" title="Welcome to My New Blog" /><published>2025-11-24T10:00:00+01:00</published><updated>2025-11-24T10:00:00+01:00</updated><id>http://localhost:4000/blog/2025/11/24/welcome-to-my-blog</id><content type="html" xml:base="http://localhost:4000/blog/2025/11/24/welcome-to-my-blog/"><![CDATA[<p>I’m excited to launch this new blog space! After years of using Twitter, I wanted a platform where I could share my thoughts, research updates, and insights about machine learning, automotive technology, and formal verification without the constraints of a 280-character limit.</p>
+
+<h2 id="what-to-expect">What to Expect</h2>
+
+<p>This blog will be a place where I share:</p>
+
+<ul>
+  <li><strong>Deep dives into AI/ML topics</strong> - Especially around formal verification of neural networks</li>
+  <li><strong>Company updates from roboGaze</strong> - Our journey in automotive ML</li>
+  <li><strong>Technical articles</strong> - Code, algorithms, and best practices</li>
+  <li><strong>Personal reflections</strong> - On technology, science, and innovation</li>
+</ul>
+
+<h2 id="why-leave-twitter">Why Leave Twitter?</h2>
+
+<p>While Twitter was great for quick updates and networking, I felt the need for a more controlled, personal space where I can:</p>
+
+<ol>
+  <li>Share longer-form content</li>
+  <li>Include detailed images and diagrams</li>
+  <li>Maintain a permanent archive of my thoughts</li>
+  <li>Own my content completely</li>
+</ol>
+
+<h2 id="whats-next">What’s Next?</h2>
+
+<p>I’ll be posting regularly about:</p>
+
+<ul>
+  <li>The latest developments in formal verification</li>
+  <li>Automotive AI safety standards (ASPICE, ASIL)</li>
+  <li>Conference talks and presentations</li>
+  <li>Interesting papers and research</li>
+</ul>
+
+<p>Stay tuned for more content! You can still find me on <a href="https://www.linkedin.com/in/tgergo1/">LinkedIn</a> and <a href="https://github.com/tgergo1/">GitHub</a> for professional updates.</p>]]></content><author><name>Gergely Várhelyi-Tóth</name></author><category term="announcement" /><category term="personal" /><category term="blog" /><summary type="html"><![CDATA[I’m excited to launch this new blog space! After years of using Twitter, I wanted a platform where I could share my thoughts, research updates, and insights about machine learning, automotive technology, and formal verification without the constraints of a 280-character limit.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/img/7.jpg" /><media:content medium="image" url="http://localhost:4000/img/7.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Formal Verification: The Future of Safe AI</title><link href="http://localhost:4000/blog/2025/11/20/formal-verification-future-of-safe-ai/" rel="alternate" type="text/html" title="Formal Verification: The Future of Safe AI" /><published>2025-11-20T14:30:00+01:00</published><updated>2025-11-20T14:30:00+01:00</updated><id>http://localhost:4000/blog/2025/11/20/formal-verification-future-of-safe-ai</id><content type="html" xml:base="http://localhost:4000/blog/2025/11/20/formal-verification-future-of-safe-ai/"><![CDATA[<p>As we deploy machine learning models in safety-critical applications like autonomous vehicles, the question of verification becomes paramount. How can we prove that a neural network will behave correctly in all situations?</p>
+
+<h2 id="the-challenge">The Challenge</h2>
+
+<p>Traditional software can be tested exhaustively in many cases. But neural networks are different:</p>
+
+<ul>
+  <li>They learn from data, not explicit programming</li>
+  <li>Their behavior emerges from millions of parameters</li>
+  <li>Testing every possible input is impossible</li>
+  <li>Edge cases can have catastrophic consequences</li>
+</ul>
+
+<h2 id="formal-verification-as-a-solution">Formal Verification as a Solution</h2>
+
+<p>Formal verification offers mathematical proofs of correctness. For neural networks, this means:</p>
+
+<p><strong>Proving properties like:</strong></p>
+<ul>
+  <li>Output ranges for given input ranges</li>
+  <li>Robustness against adversarial perturbations</li>
+  <li>Consistency across similar inputs</li>
+</ul>
+
+<p><strong>Using techniques such as:</strong></p>
+<ul>
+  <li>Abstract interpretation</li>
+  <li>SMT solving</li>
+  <li>Interval analysis</li>
+  <li>Symbolic execution</li>
+</ul>
+
+<h2 id="why-this-matters-for-automotive">Why This Matters for Automotive</h2>
+
+<p>In automotive applications, we must comply with standards like ASPICE and ASIL. These require:</p>
+
+<ol>
+  <li>Documented safety analysis</li>
+  <li>Proof of correct behavior</li>
+  <li>Traceable requirements</li>
+  <li>Verification evidence</li>
+</ol>
+
+<p>Formal verification provides the mathematical foundation for these requirements.</p>
+
+<h2 id="the-path-forward">The Path Forward</h2>
+
+<p>At roboGaze, we’re pioneering the integration of formal verification into the ML development pipeline. This isn’t just academic research—it’s becoming a practical necessity for deploying AI in safety-critical systems.</p>
+
+<p>The future of AI safety isn’t about hoping our models work correctly. It’s about proving they do.</p>]]></content><author><name>Gergely Várhelyi-Tóth</name></author><category term="AI" /><category term="machine-learning" /><category term="formal-verification" /><category term="safety" /><summary type="html"><![CDATA[As we deploy machine learning models in safety-critical applications like autonomous vehicles, the question of verification becomes paramount. How can we prove that a neural network will behave correctly in all situations?]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/img/3.jpg" /><media:content medium="image" url="http://localhost:4000/img/3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Budapest ML Conference 2024 - Key Takeaways</title><link href="http://localhost:4000/blog/2025/11/15/budapest-ml-conference-2024/" rel="alternate" type="text/html" title="Budapest ML Conference 2024 - Key Takeaways" /><published>2025-11-15T09:00:00+01:00</published><updated>2025-11-15T09:00:00+01:00</updated><id>http://localhost:4000/blog/2025/11/15/budapest-ml-conference-2024</id><content type="html" xml:base="http://localhost:4000/blog/2025/11/15/budapest-ml-conference-2024/"><![CDATA[<p>Last week, I had the privilege of presenting at the Budapest ML Conference 2024. The energy and innovation in the Hungarian ML community continue to impress me!</p>
+
+<h2 id="my-talk-formal-verification-of-neural-networks">My Talk: Formal Verification of Neural Networks</h2>
+
+<p>I presented our work on formal verification techniques for neural networks in automotive applications. The main points covered:</p>
+
+<ul>
+  <li>Current challenges in ML verification</li>
+  <li>Mathematical foundations of formal methods</li>
+  <li>Practical applications in autonomous vehicles</li>
+  <li>Integration with ASPICE/ASIL workflows</li>
+</ul>
+
+<p>The audience was highly engaged, with excellent questions about scalability and real-world deployment challenges.</p>
+
+<h2 id="other-highlights">Other Highlights</h2>
+
+<p><strong>Synthetic Data Generation Panel</strong>
+The panel on synthetic data was fascinating. As someone working with data collection for automotive ML, I found the discussions about:</p>
+<ul>
+  <li>Quality vs. quantity trade-offs</li>
+  <li>Domain gap challenges</li>
+  <li>Validation strategies</li>
+</ul>
+
+<p><strong>Networking</strong></p>
+
+<p>Connected with amazing researchers and practitioners from:</p>
+<ul>
+  <li>BME (Budapest University of Technology)</li>
+  <li>Local startups</li>
+  <li>International companies with Hungarian offices</li>
+</ul>
+
+<h2 id="reflections">Reflections</h2>
+
+<p>The Budapest ML scene is thriving. It’s exciting to see so much talent and innovation coming from Hungary. Our work at roboGaze is part of this broader ecosystem of excellence.</p>
+
+<p>Looking forward to next year’s conference!</p>
+
+<hr />
+
+<p><em>Check out the <a href="https://budapestml.hu/2024/hu/">conference website</a> for more information and other talks.</em></p>]]></content><author><name>Gergely Várhelyi-Tóth</name></author><category term="conference" /><category term="machine-learning" /><category term="Budapest" /><category term="networking" /><summary type="html"><![CDATA[Last week, I had the privilege of presenting at the Budapest ML Conference 2024. The energy and innovation in the Hungarian ML community continue to impress me!]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/img/6.jpg" /><media:content medium="image" url="http://localhost:4000/img/6.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

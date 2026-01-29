@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Gergely Várhelyi-Tóth",
+    "role": "ML researcher focused on JEPA and neo-architectures",
+    "bio": "Formal verification and safety-critical ML, with focus on JEPA and energy-based systems.",
+    "location": "Budapest",
+    "avatar": "https://1.gravatar.com/avatar/1ccc23f9981667677b87098044976d90",
+    "avatarAlt": "Portrait of Gergely Várhelyi-Tóth"
+  },
+  "posts": [],
+  "template": {
+    "id": "",
+    "date": "",
+    "type": "note",
+    "title": "",
+    "image": "",
+    "imageAlt": "",
+    "url": "",
+    "content": "",
+    "tags": []
+  }
+}

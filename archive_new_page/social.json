@@ -1,0 +1,18 @@
+{
+  "limit": 3,
+  "corsProxy": "https://api.allorigins.win/raw?url=",
+  "bluesky": {
+    "handle": "tgergo1.bsky.social",
+    "profileUrl": "https://bsky.app/profile/tgergo1.bsky.social"
+  },
+  "mastodon": {
+    "handle": "@tgergo1@mastodon.social",
+    "instance": "mastodon.social",
+    "profileUrl": "https://mastodon.social/@tgergo1"
+  },
+  "threads": {
+    "handle": "tgergo1",
+    "profileUrl": "https://www.threads.com/@tgergo1",
+    "rssUrl": "https://rss-bridge.org/bridge01/?action=display&bridge=ThreadsBridge&u=tgergo1&format=Atom"
+  }
+}

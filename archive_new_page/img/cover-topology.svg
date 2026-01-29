@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Topology cover">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#bcd2ea" />
+      <stop offset="100%" stop-color="#1e2f44" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg)" />
+  <g fill="none" stroke="#ffffff" stroke-width="2" opacity="0.5">
+    <circle cx="180" cy="140" r="90" />
+    <circle cx="320" cy="220" r="110" />
+    <circle cx="430" cy="120" r="70" />
+  </g>
+  <g fill="#ffffff" opacity="0.85">
+    <circle cx="180" cy="140" r="6" />
+    <circle cx="320" cy="220" r="6" />
+    <circle cx="430" cy="120" r="6" />
+    <circle cx="270" cy="110" r="4" />
+    <circle cx="380" cy="250" r="4" />
+  </g>
+  <rect x="360" y="300" width="170" height="46" rx="22" fill="#ffffff" opacity="0.92" />
+  <text x="382" y="330" font-family="Sora, sans-serif" font-size="18" fill="#1e2f44">Topology</text>
+</svg>

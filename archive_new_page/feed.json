@@ -1,0 +1,12 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Gergely Várhelyi-Tóth",
+  "home_page_url": "https://tgergo1.github.io/",
+  "feed_url": "https://tgergo1.github.io/feed.json",
+  "description": "ML researcher focused on formal verification and neo-architectures (JEPA, energy-based systems).",
+  "author": {
+    "name": "Gergely Várhelyi-Tóth",
+    "url": "https://tgergo1.github.io/"
+  },
+  "items": []
+}

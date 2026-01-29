@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Verification cover">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f6b08a" />
+      <stop offset="100%" stop-color="#f0896c" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg)" />
+  <circle cx="120" cy="110" r="90" fill="#f9d3bf" opacity="0.7" />
+  <circle cx="480" cy="300" r="110" fill="#ef6f50" opacity="0.25" />
+  <path d="M80 260 L260 120 L420 240 L520 150" fill="none" stroke="#1e2f44" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="70" y="300" width="190" height="46" rx="22" fill="#1e2f44" />
+  <text x="95" y="330" font-family="Sora, sans-serif" font-size="18" fill="#ffffff">Verification</text>
+</svg>
